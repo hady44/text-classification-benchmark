@@ -1,9 +1,14 @@
 import nltk
 import sklearn_crfsuite
-import eli5
 from nltk import word_tokenize, pos_tag, ne_chunk
 from sklearn.externals import joblib
+from sklearn.metrics import  f1_score
+from	sklearn.model_selection	import	StratifiedKFold, cross_val_predict,KFold, cross_val_score, cross_validate
+from sklearn.preprocessing import MultiLabelBinarizer
+from	sklearn.base	import	clone
 from nltk.chunk import conlltags2tree, tree2conlltags
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
+
 import re
 train_sents = list(nltk.corpus.conll2002.iob_sents('esp.train'))
 test_sents = list(nltk.corpus.conll2002.iob_sents('esp.testb'))
@@ -78,16 +83,21 @@ def sent2tokens(sent):
 #     max_iterations=20,
 #     all_possible_transitions=False,
 # )
-# crf.fit(X_train, y_train);
+# crf.fit(X_train, y_train)
+
+# y_pred = cross_val_predict(crf,	X_train, y_train, cv=5)
+
 
 
 # joblib.dump(crf, 'crf-suite-new.pkl', compress=9)
+
 ner_old = joblib.load('crf-suite-old.pkl')
 ner_new = joblib.load('crf-suite-new.pkl')
 
 # print ner_old
 
-CONST_WIKI_ALL = "/home/hady/PycharmProjects/text-classification-benchmarks/data/ritter_ner.tsv"
+# CONST_WIKI_ALL = "/home/hady/PycharmProjects/text-classification-benchmarks/data/test_data/ritter_ner.tsv"
+CONST_WIKI_ALL = "../data/test_data/ritter_ner.tsv"
 
 # dataset = np.genfromtxt(CONST_WIKI_ALL, delimiter='\t', skip_header=1)
 
@@ -165,11 +175,40 @@ for idx in range(len(X_test_final)):
     if len(x) != len(y):
         print "err"
 # print ner_old.predict(sent2features("Hady is a good boy"))
-print ner_old.score(X_test_final, y_test_final), "old_model"
-print ner_new.score(X_test_final, y_test_final), "new_model"
+old_pred = ner_old.predict(X_test_final)
+f1_score(MultiLabelBinarizer(sparse_output=True).fit_transform(y_test_final),
+         MultiLabelBinarizer(sparse_output=True).fit_transform(old_pred))
 
+# print ner_old.score(X_test_final, y_test_final), "old_model"
+# print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final),
+#                average=None)
+# print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final),
+#                average='weighted')
+# new_pred = ner_new.predict(X_test_final)
+# print ner_new.score(X_test_final, y_test_final), "new_model"
+# print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final))
 # print crf.score(X_test_final, y_test_final), "new_model" #new crf
+# print("Here comes the detailed scores")
 
+# scoring = {'accuracy' : make_scorer(accuracy_score),
+#            'precision' : make_scorer(precision_score),
+#            'recall' : make_scorer(recall_score),
+#            'f1_score' : make_scorer(f1_score)}
+# kfold = KFold(n_splits=5, random_state=42)
+# y_scores_old = cross_validate(estimator=ner_old,
+#                                           X=X_test_final,
+#                                           y=MultiLabelBinarizer().fit_transform(y_test_final),
+#                                           cv=kfold,
+#                                           scoring=scoring)
+#
+# y_scores_new = cross_validate(estimator=ner_new,
+#                                           X=X_test_final,
+#                                           y=MultiLabelBinarizer().fit_transform(y_test_final),
+#                                           cv=kfold,
+#                                           scoring=scoring)
+# print(y_scores_old)
+# print("--------------------")
+# print(y_scores_new)
 # print(X_train[0])
 
 # print(y_train[0])

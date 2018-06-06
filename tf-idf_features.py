@@ -1,36 +1,18 @@
-import os
-import pandas as pd
-import pandas
 import numpy as np
 import nltk
-import gensim
-import re
 import string
-import collections
-
-import scipy
-# import	matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score,f1_score, roc_curve, confusion_matrix
-from datetime import date
-from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from sklearn.model_selection import train_test_split, cross_val_predict
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, TfidfTransformer
-from gensim import corpora
-from sklearn.model_selection import validation_curve
-from collections import defaultdict
-from scipy import interp
-from sklearn.preprocessing import label_binarize
-from sklearn.externals import joblib
 
 
 # read data
 
-CONST_WIKI_ALL = "/home/hady/ml/cscubs18/datasets/wiki_3classes2.csv"
+CONST_WIKI_ALL = "data/wiki_3classes2.csv"
 
 dataset = np.genfromtxt(CONST_WIKI_ALL, delimiter="|\-/|", skip_header=1,
 dtype={'names': ('klass', 'text'), 'formats': (np.int, '|S1000')})
@@ -90,46 +72,30 @@ X = feature_extraction.fit_transform(doc_tfidf_clean)
 
 X_train, X_test, y_train, y_test = train_test_split(X, labels_clean, test_size=0.2, random_state=5)
 
-#     for i in range(50):
-#     X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.2, random_state=5)
-#     clf = SVC(decision_function_shape='ovr')
-#     clf.fit(X_train, y_train)
-#     predictions = clf.predict(X_test)
-    # print(predictions[:,1])
-#   print('ROC-AUC yields ' + str(accuracy_score(y_test, predictions)))
-#     print(clf.score(X_test, y_test))
-
-# clf = SVC(decision_function_shape='ovr')
 clf = SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, max_iter=5, random_state=42)
 clf.fit(X_train, y_train)
 
 predictions = clf.predict(X_test)
-# print(predictions[:,1])
+
 print('ROC-AUC yields ' + str(accuracy_score(y_test, predictions)))
 print(clf.score(X_test, y_test))
 
-# clf.predict(X_test)
-# y = bin
 
 parameters_svm = {'vect__ngram_range': [(1, 1), (1, 2)], 'tfidf__use_idf': (True, False),
                   'clf-svm__alpha': (1e-2, 1e-3)}
 text_clf_svm = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()),
                          ('clf-svm', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, max_iter=5, random_state=42))])
-
+#tune
 from sklearn.model_selection import GridSearchCV
 gs_clf = GridSearchCV(text_clf_svm, parameters_svm, n_jobs=-1)
 X_train, X_test, y_train, y_test = train_test_split(doc_tfidf_clean, labels_clean, test_size=0.2, random_state=5)
 gs_clf = gs_clf.fit(X_train, y_train)
-# sorted(gs_clf.get_params().keys())
-
-# sorted(gs_clf.get_params().keys())
 print(gs_clf.best_score_)
 print(gs_clf.best_params_)
 final_clf = gs_clf.best_estimator_.fit(X_train, y_train)
-joblib.dump(final_clf, 'tf-idf+svm.pkl', compress=9)
+# joblib.dump(final_clf, 'tf-idf+svm.pkl', compress=9) # use to save model
 predictions = final_clf.predict(X_test)
-# print(predictions[:,1])
 print('ROC-AUC yields ' + str(accuracy_score(y_test, predictions)))
 print(final_clf.score(X_test, y_test))
 
-y_train_pred	=	cross_val_predict(gs_clf,	X_train,	y_train,	cv=3)
+y_train_pred = cross_val_predict(gs_clf,	X_train,	y_train,	cv=3)
