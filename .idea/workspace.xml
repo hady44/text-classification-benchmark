@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00229b61-ec66-4ab3-a678-66318e25e7b6" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/raw_to_labelled.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crf-suite-new.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/crf-suite-new.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crf-suite-old.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/crf-suite-old.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crfsuite.py" beforeDir="false" afterPath="$PROJECT_DIR$/crfsuite.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/ritter_ner.tsv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tf-idf_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf-idf_features.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CRF/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CRF.py" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/CRF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crf-suite-new.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/crf-suite-new.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crf-suite-old.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/crf-suite-old.pkl" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -56,11 +53,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tf-idf_features.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="tf-idf_features.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tf-idf_features.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="73" lean-forward="true" selection-start-line="73" selection-end-line="73" />
+            <state relative-caret-position="1314">
+              <caret line="73" selection-start-line="73" selection-end-line="73" />
               <folding>
                 <element signature="e#1#19#0" expanded="true" />
               </folding>
@@ -68,11 +65,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="raw_to_labelled.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="raw_to_labelled.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/raw_to_labelled.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="254">
-              <caret line="23" column="3" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
+            <state relative-caret-position="486">
+              <caret line="27" column="71" lean-forward="true" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
             </state>
           </provider>
         </entry>
@@ -124,7 +121,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>scoo</find>
       <find>&quot;</find>
       <find>scoot</find>
       <find>scooter</find>
@@ -154,6 +150,7 @@
       <find>format</find>
       <find>delim</find>
       <find>dtype</find>
+      <find>dump</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -203,7 +200,7 @@
             <path>
               <item name="text-classification-benchmarks" type="b2602c69:ProjectViewProjectNode" />
               <item name="text-classification-benchmarks" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="CRF" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -358,7 +355,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="12" />
       <window_info anchor="bottom" id="Event Log" order="5" side_tool="true" />
@@ -367,7 +363,7 @@
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32948583" />
       <window_info anchor="bottom" id="Run" order="8" weight="0.40188876" />
       <window_info anchor="bottom" id="Terminal" order="4" weight="0.32948583" />
-      <window_info content_ui="combo" id="Project" order="1" weight="0.12161415" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.12161415" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="2" />
       <window_info anchor="right" id="SciView" order="0" />
@@ -418,7 +414,7 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/CRF.py">
+    <entry file="file://$PROJECT_DIR$/CRF/CRF.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4536">
           <caret line="252" column="35" selection-start-line="252" selection-start-column="35" selection-end-line="252" selection-end-column="35" />
@@ -491,7 +487,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CRF.py">
+    <entry file="file://$PROJECT_DIR$/CRF/CRF.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3492">
           <caret line="195" column="10" lean-forward="true" selection-start-line="195" selection-start-column="10" selection-end-line="195" selection-end-column="10" />
@@ -663,7 +659,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CRF.py">
+    <entry file="file://$PROJECT_DIR$/CRF/CRF.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2178">
           <caret line="121" column="29" selection-start-line="121" selection-start-column="17" selection-end-line="121" selection-end-column="29" />
@@ -760,20 +756,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raw_to_labelled.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
-          <caret line="23" column="3" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tf-idf_features.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="73" lean-forward="true" selection-start-line="73" selection-end-line="73" />
+        <state relative-caret-position="1314">
+          <caret line="73" selection-start-line="73" selection-end-line="73" />
           <folding>
             <element signature="e#1#19#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/raw_to_labelled.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="486">
+          <caret line="27" column="71" lean-forward="true" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
         </state>
       </provider>
     </entry>
