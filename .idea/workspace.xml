@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00229b61-ec66-4ab3-a678-66318e25e7b6" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/CRF/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CRF.py" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/CRF.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crf-suite-new.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/crf-suite-new.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crf-suite-old.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/crf-suite-old.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CRF/raw_to_labelled.py" beforeDir="false" afterPath="$PROJECT_DIR$/CRF/raw_to_labelled.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,24 +14,13 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$test.coverage" NAME="test Coverage Results" MODIFIED="1527670651826" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$CRF.coverage" NAME="CRF Coverage Results" MODIFIED="1527182737979" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/text_classification_benchmarks$tf_idf_features.coverage" NAME="tf-idf_features Coverage Results" MODIFIED="1528260636971" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/text_classification_benchmarks$raw_to_labelled__1_.coverage" NAME="raw_to_labelled (1) Coverage Results" MODIFIED="1528261750189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CRF" />
+    <SUITE FILE_PATH="coverage/text_classification_benchmarks$tf_idf_features.coverage" NAME="tf-idf_features Coverage Results" MODIFIED="1528261638039" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$crfsuite.coverage" NAME="crfsuite Coverage Results" MODIFIED="1528254659173" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$raw_to_labelled.coverage" NAME="raw_to_labelled Coverage Results" MODIFIED="1528260295333" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="crfsuite.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/crfsuite.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="99" column="21" selection-start-line="99" selection-start-column="21" selection-end-line="99" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#11#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="validation.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/anaconda3/envs/my_env/lib/python2.7/site-packages/sklearn/utils/validation.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -66,10 +52,13 @@
         </entry>
       </file>
       <file leaf-file-name="raw_to_labelled.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/raw_to_labelled.py">
+        <entry file="file://$PROJECT_DIR$/CRF/raw_to_labelled.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="486">
-              <caret line="27" column="71" lean-forward="true" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
+            <state relative-caret-position="410">
+              <caret line="29" column="18" selection-start-line="29" selection-start-column="18" selection-end-line="29" selection-end-column="18" />
+              <folding>
+                <element signature="e#767#785#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -168,6 +157,7 @@
         <option value="$PROJECT_DIR$/data/Organization.csv" />
         <option value="$PROJECT_DIR$/raw_to_labelled.py" />
         <option value="$PROJECT_DIR$/tf-idf_features.py" />
+        <option value="$PROJECT_DIR$/CRF/raw_to_labelled.py" />
       </list>
     </option>
   </component>
@@ -202,6 +192,24 @@
               <item name="text-classification-benchmarks" type="462c0819:PsiDirectoryNode" />
               <item name="CRF" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="text-classification-benchmarks" type="b2602c69:ProjectViewProjectNode" />
+              <item name="text-classification-benchmarks" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="text-classification-benchmarks" type="b2602c69:ProjectViewProjectNode" />
+              <item name="text-classification-benchmarks" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="dbpedia" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="text-classification-benchmarks" type="b2602c69:ProjectViewProjectNode" />
+              <item name="text-classification-benchmarks" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="dbpedia" type="462c0819:PsiDirectoryNode" />
+              <item name="final_data" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -215,6 +223,11 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/CRF" />
+    </key>
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -227,26 +240,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.tf-idf_features">
-    <configuration name="CRF" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="text-classification-benchmarks" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CRF.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
+  <component name="RunManager" selected="Python.raw_to_labelled (1)">
     <configuration name="crfsuite" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="text-classification-benchmarks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -261,6 +255,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crfsuite.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="raw_to_labelled (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="text-classification-benchmarks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/CRF" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CRF/raw_to_labelled.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -324,19 +337,19 @@
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <list>
-      <item itemvalue="Python.CRF" />
       <item itemvalue="Python.tf-idf_features" />
       <item itemvalue="Python.crfsuite" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.raw_to_labelled" />
+      <item itemvalue="Python.raw_to_labelled (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.raw_to_labelled (1)" />
         <item itemvalue="Python.tf-idf_features" />
         <item itemvalue="Python.raw_to_labelled" />
         <item itemvalue="Python.crfsuite" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.CRF" />
       </list>
     </recent_temporary>
   </component>
@@ -355,15 +368,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="12" />
       <window_info anchor="bottom" id="Event Log" order="5" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="2" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="1" />
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32948583" />
-      <window_info anchor="bottom" id="Run" order="8" weight="0.40188876" />
+      <window_info active="true" anchor="bottom" id="Run" order="8" visible="true" weight="0.40188876" />
       <window_info anchor="bottom" id="Terminal" order="4" weight="0.32948583" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.12161415" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12161415" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="2" />
       <window_info anchor="right" id="SciView" order="0" />
@@ -414,13 +428,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/CRF/CRF.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4536">
-          <caret line="252" column="35" selection-start-line="252" selection-start-column="35" selection-end-line="252" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/envs/my_env/lib/python2.7/site-packages/nltk/chunk/api.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="720">
@@ -487,7 +494,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CRF/CRF.py">
+    <entry file="file://$PROJECT_DIR$/CRF.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3492">
           <caret line="195" column="10" lean-forward="true" selection-start-line="195" selection-start-column="10" selection-end-line="195" selection-end-column="10" />
@@ -659,7 +666,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CRF/CRF.py">
+    <entry file="file://$PROJECT_DIR$/CRF.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2178">
           <caret line="121" column="29" selection-start-line="121" selection-start-column="17" selection-end-line="121" selection-end-column="29" />
@@ -756,6 +763,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/raw_to_labelled.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="486">
+          <caret line="27" column="71" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tf-idf_features.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1314">
@@ -766,10 +780,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/raw_to_labelled.py">
+    <entry file="file://$PROJECT_DIR$/CRF/raw_to_labelled.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="27" column="71" lean-forward="true" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
+        <state relative-caret-position="410">
+          <caret line="29" column="18" selection-start-line="29" selection-start-column="18" selection-end-line="29" selection-end-column="18" />
+          <folding>
+            <element signature="e#767#785#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

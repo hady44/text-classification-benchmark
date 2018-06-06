@@ -22,10 +22,9 @@
 #             print(len(row))
 #     # print x
 # #
-# import numpy as np
-# CONST_WIKI_ALL = "data/Organization.csv"
-#
-# dataset = np.genfromtxt(CONST_WIKI_ALL, delimiter="|", skip_header=1,
-# dtype=None)
-#
-# print dataset
+import numpy as np
+import pandas as pd
+CONST_WIKI_ALL = "data/Organization.csv"
+
+df = pd.read_csv('../data/dbpedia/final_data/Location.csv')
+print df['abstract']
