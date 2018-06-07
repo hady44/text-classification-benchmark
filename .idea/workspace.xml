@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00229b61-ec66-4ab3-a678-66318e25e7b6" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/one-hot-classifiers/train_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/one-hot-classifiers/train_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/one-hot-classifiers/train_models.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,7 +18,7 @@
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$tf_idf_features.coverage" NAME="tf-idf_features Coverage Results" MODIFIED="1528338894502" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$crfsuite.coverage" NAME="crfsuite Coverage Results" MODIFIED="1528254659173" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/text_classification_benchmarks$raw_to_labelled.coverage" NAME="raw_to_labelled Coverage Results" MODIFIED="1528260295333" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/text_classification_benchmarks$train_models.coverage" NAME="train_models Coverage Results" MODIFIED="1528340910979" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/one-hot-classifiers" />
+    <SUITE FILE_PATH="coverage/text_classification_benchmarks$train_models.coverage" NAME="train_models Coverage Results" MODIFIED="1528380849925" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/one-hot-classifiers" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
@@ -47,8 +46,8 @@
       <file leaf-file-name="train_models.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/one-hot-classifiers/train_models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
-              <caret line="121" column="11" selection-start-line="121" selection-start-column="11" selection-end-line="121" selection-end-column="11" />
+            <state relative-caret-position="176">
+              <caret line="209" column="31" selection-start-line="209" selection-start-column="31" selection-end-line="209" selection-end-column="31" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -121,7 +120,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>featu</find>
       <find>jobl</find>
       <find>ner_old</find>
       <find>person</find>
@@ -151,7 +149,11 @@
       <find>lemma</find>
       <find>aux</find>
       <find>SGDClassifier</find>
+      <find>_2</find>
     </findStrings>
+    <replaceStrings>
+      <replace>_3</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -771,8 +773,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/one-hot-classifiers/train_models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="121" column="11" selection-start-line="121" selection-start-column="11" selection-end-line="121" selection-end-column="11" />
+        <state relative-caret-position="176">
+          <caret line="209" column="31" selection-start-line="209" selection-start-column="31" selection-end-line="209" selection-end-column="31" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>

@@ -124,8 +124,8 @@ print(clf_1.score(X_test_1, y_test_1))
 #####################################################################################################################
 #model 2
 
-#TODO: pull other
-#prepare data for location model
+
+#prepare data for organization model
 person_2 = Persons.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
 person_2 = person_2.head(3300)
 
@@ -170,3 +170,53 @@ predictions = clf_2.predict(X_test_2)
 print('f1', f1_score(y_test_2, predictions))
 print('ROC-AUC yields ' + str(accuracy_score(y_test_2, predictions)))
 print(clf_2.score(X_test_2, y_test_2))
+
+#####################################################################################################################
+
+#prepare data for organization model
+
+organization_3 = Organizations.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
+organization_3 = organization_3.head(3300)
+
+location_3 = Locations.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
+location_3 = location_3.head(3300)
+
+#TODO: do for other
+
+# dataset_1 = pd.DataFrame(location_1, organizations_1, columns=['class', 'abstract'])
+person_3 = Persons.values.tolist()
+location_3 = location_3.values.tolist()
+organization_3 = organization_3.values.tolist()
+dataset_3 = []
+
+for per in person_3:
+    dataset_3.append(per)
+for org in organization_3:
+    dataset_3.append(org)
+for loc in location_3:
+    dataset_3.append(loc)
+
+random.shuffle(dataset_3)
+
+X_3, y_3 = [], []
+for data in dataset_3:
+    if len(data) == 1:
+        print data
+    y_3.append(data[0])
+    X_3.append(data[1])
+
+#remove stop words
+
+X_3, y_3 = preprocessing(X_3, 3, y_3)
+
+
+X_train_3, X_test_3, y_train_3, y_test_3 = train_test_split(X_3, y_3, test_size=0.2, random_state=5)
+
+clf_3 = SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, max_iter=1000, random_state=42)
+clf_3.fit(X_train_3, y_train_3)
+
+predictions = clf_3.predict(X_test_3)
+print('f1', f1_score(y_test_3, predictions))
+print('ROC-AUC yields ' + str(accuracy_score(y_test_3, predictions)))
+print(clf_3.score(X_test_3, y_test_3))
+
