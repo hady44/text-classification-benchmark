@@ -13,10 +13,13 @@ import re
 train_sents = list(nltk.corpus.conll2002.iob_sents('esp.train'))
 test_sents = list(nltk.corpus.conll2002.iob_sents('esp.testb'))
 # print(train_sents)
-tf_idf_clone = joblib.load('tf-idf+svm.pkl')
+tf_idf_clone_1 = joblib.load('../one-hot-classifiers/tf-idf+svm_1.pkl')
+tf_idf_clone_2 = joblib.load('../one-hot-classifiers/tf-idf+svm_2.pkl')
+tf_idf_clone_3 = joblib.load('../one-hot-classifiers/tf-idf+svm_3.pkl')
+
 def word2features(sent, i):
     word = sent[i][0]
-    print tf_idf_clone.predict([word])[0]
+    # print tf_idf_clone.predict([word])[0]
     postag = sent[i][1].encode("utf-8")
     features = {
         'bias': 1.0,
@@ -27,7 +30,9 @@ def word2features(sent, i):
         'word.isdigit()': word.isdigit(),
         'postag': postag,
         'postag[:2]': postag[:2].encode("utf-8"),
-        'klass': tf_idf_clone.predict([word])[0],
+        'klass_1': tf_idf_clone_1.predict([word])[0],
+        'klass_2': tf_idf_clone_2.predict([word])[0],
+        'klass_3': tf_idf_clone_3.predict([word])[0],
     }
     if i > 0:
         word1 = sent[i-1][0]
@@ -38,7 +43,9 @@ def word2features(sent, i):
             '-1:word.isupper()': word1.isupper(),
             '-1:postag': postag1,
             '-1:postag[:2]': postag1[:2].encode("utf-8"),
-            '-1:klass': tf_idf_clone.predict([word1])[0],
+            '-1:klass_1': tf_idf_clone_1.predict([word])[0],
+            '-1:klass_2': tf_idf_clone_2.predict([word])[0],
+            '-1:klass_3': tf_idf_clone_3.predict([word])[0],
         })
     else:
         features['BOS'] = True
@@ -52,7 +59,9 @@ def word2features(sent, i):
             '+1:word.isupper()': word1.isupper(),
             '+1:postag': postag1,
             '+1:postag[:2]': postag1[:2].encode("utf-8"),
-            '+1:klass': tf_idf_clone.predict([word1])[0],
+            '+1:klass_1': tf_idf_clone_1.predict([word])[0],
+            '+1:klass_2': tf_idf_clone_2.predict([word])[0],
+            '+1:klass_3': tf_idf_clone_3.predict([word])[0],
         })
     else:
         features['EOS'] = True
@@ -69,30 +78,30 @@ def sent2labels(sent):
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
-# X_train = [sent2features(s) for s in train_sents]
-# y_train = [sent2labels(s) for s in train_sents]
-#
-# X_test = [sent2features(s) for s in test_sents]
-# y_test = [sent2labels(s) for s in test_sents]
+X_train = [sent2features(s) for s in train_sents]
+y_train = [sent2labels(s) for s in train_sents]
+
+X_test = [sent2features(s) for s in test_sents]
+y_test = [sent2labels(s) for s in test_sents]
 
 
-# crf = sklearn_crfsuite.CRF(
-#     algorithm='lbfgs',
-#     c1=0.1,
-#     c2=0.1,
-#     max_iterations=20,
-#     all_possible_transitions=False,
-# )
-# crf.fit(X_train, y_train)
+crf = sklearn_crfsuite.CRF(
+    algorithm='lbfgs',
+    c1=0.1,
+    c2=0.1,
+    max_iterations=20,
+    all_possible_transitions=False,
+)
+crf.fit(X_train, y_train)
 
-# y_pred = cross_val_predict(crf,	X_train, y_train, cv=5)
+y_pred = cross_val_predict(crf,	X_train, y_train, cv=5)
 
 
 
-# joblib.dump(crf, 'crf-suite-new.pkl', compress=9)
+joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
 
-ner_old = joblib.load('crf-suite-old.pkl')
 ner_new = joblib.load('crf-suite-new.pkl')
+# ner_new = joblib.load('crf-suite-new.pkl')
 
 # print ner_old
 
@@ -169,21 +178,22 @@ with open(CONST_WIKI_ALL,'rb') as tsvin, open('new.csv', 'wb') as csvout:
 # print train_sents[0]
 # print y_train[0]
 # print(len(X_test_final[1]), len(y_test_final[1]))
-for idx in range(len(X_test_final)):
-    x = X_test_final[idx]
-    y = y_test_final[idx]
-    if len(x) != len(y):
-        print "err"
+# for idx in range(len(X_test_final)):
+#     x = X_test_final[idx]
+#     y = y_test_final[idx]
+#     if len(x) != len(y):
+#         print "err"
 # print ner_old.predict(sent2features("Hady is a good boy"))
-old_pred = ner_old.predict(X_test_final)
-f1_score(MultiLabelBinarizer(sparse_output=True).fit_transform(y_test_final),
-         MultiLabelBinarizer(sparse_output=True).fit_transform(old_pred))
+# old_pred = ner_old.predict(X_test_final)
+# f1_score(MultiLabelBinarizer(sparse_output=True).fit_transform(y_test_final),
+#          MultiLabelBinarizer(sparse_output=True).fit_transform(old_pred))
 
-# print ner_old.score(X_test_final, y_test_final), "old_model"
+print (ner_new.score(X_test_final, y_test_final), "new_model")
 # print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final),
 #                average=None)
 # print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final),
 #                average='weighted')
+# new_pred = ner_new.predict(X_test_final)
 # new_pred = ner_new.predict(X_test_final)
 # print ner_new.score(X_test_final, y_test_final), "new_model"
 # print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final))
