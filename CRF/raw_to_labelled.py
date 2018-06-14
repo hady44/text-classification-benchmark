@@ -1,18 +1,18 @@
-# import csv
-# import re
-# #
-# with open("data/dbpedia/Location_raw.csv", "r") as fp:
-#     reader = csv.reader(fp, delimiter=',')
-#     table = [row for row in reader]
-#     with open("data/Organization.csv", "w+") as fw:
-#         fieldnames = ['class', 'abstract']
-#         writer = csv.DictWriter(fw, fieldnames=fieldnames, delimiter='|')
-#         for row in table:
-#             if len(row) == 2:
-#                 writer.writerow({'class': '2', 'abstract': row[1]})
-#             else:
-#                 print len(row)
+import csv
+import re
 #
+with open("../data/dbpedia/Other_raw.csv", "r") as fp:
+    reader = csv.reader(fp, delimiter=',')
+    table = [row for row in reader]
+    with open("../data/dbpedia/final_data/Other.csv", "w+") as fw:
+        # fieldnames = ['class', 'abstract']
+        writer = csv.writer(fw)
+        for row in table:
+            if len(row) == 2:
+                writer.writerow([4, re.sub(r'[^\w\s]','',row[1])])
+            else:
+                print(len(row))
+
 # tb = []
 # with open("data/Organization.csv", "r") as fp:
 #     reader = csv.reader(fp, delimiter='|')
@@ -24,7 +24,9 @@
 # #
 import numpy as np
 import pandas as pd
-CONST_WIKI_ALL = "data/Organization.csv"
+CONST_WIKI_ALL = "../data/dbpedia/final_data/Other.csv"
 
-df = pd.read_csv('../data/dbpedia/final_data/Location.csv')
-print df['abstract']
+df = pd.read_csv(CONST_WIKI_ALL)
+df = df.values.tolist()
+
+print(len(df))
