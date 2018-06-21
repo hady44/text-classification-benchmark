@@ -19,7 +19,10 @@ tf_idf_clone_3 = joblib.load('../one-hot-classifiers/tf-idf+svm_3.pkl')
 
 def word2features(sent, i):
     word = sent[i][0]
-    # print tf_idf_clone.predict([word])[0]
+    print tf_idf_clone_1.predict([word])[0]
+    print tf_idf_clone_2.predict([word])[0]
+    print tf_idf_clone_3.predict([word])[0]
+    print "--------------------------------"
     postag = sent[i][1].encode("utf-8")
     features = {
         'bias': 1.0,
@@ -98,10 +101,10 @@ y_pred = cross_val_predict(crf,	X_train, y_train, cv=5)
 
 
 
-joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
+joblib.dump(crf, 'crf-suite-new.pkl', compress=9)
 
 ner_new = joblib.load('crf-suite-new.pkl')
-# ner_new = joblib.load('crf-suite-new.pkl')
+ner_old = joblib.load('crf-suite-old.pkl')
 
 # print ner_old
 
@@ -189,6 +192,13 @@ with open(CONST_WIKI_ALL,'rb') as tsvin, open('new.csv', 'wb') as csvout:
 #          MultiLabelBinarizer(sparse_output=True).fit_transform(old_pred))
 
 print (ner_new.score(X_test_final, y_test_final), "new_model")
+print (ner_old.score(X_test_final, y_test_final), "old_model")
+
+new_pred = ner_new.predict(X_test_final)
+old_pred = ner_old.predict(X_test_final)
+
+
+
 # print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final),
 #                average=None)
 # print f1_score(MultiLabelBinarizer().fit_transform(old_pred),	MultiLabelBinarizer().fit_transform(y_test_final),
