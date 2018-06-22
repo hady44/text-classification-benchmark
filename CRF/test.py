@@ -15,7 +15,8 @@ import definitions
 tf_idf_clone_1 = joblib.load('../one-hot-classifiers/tf-idf+svm_1.pkl')
 tf_idf_clone_2 = joblib.load('../one-hot-classifiers/tf-idf+svm_2.pkl')
 tf_idf_clone_3 = joblib.load('../one-hot-classifiers/tf-idf+svm_3.pkl')
-tf_idf_clone = joblib.load('../tf-idf+svm.pkl')
+tf_idf_clone = joblib.load('../multi-class-classifier/tf-idf+svm/tf-idf+svm_new.pkl')
+
 
 def word2features(sent, i):
     word = sent[i][0]

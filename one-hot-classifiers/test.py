@@ -87,7 +87,6 @@ location_3 = location_3.head(100000)
 other_3 = Others.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
 other_3 = other_3.head(100000)
 
-#TODO: do for other
 
 # # dataset_1 = pd.DataFrame(location_1, organizations_1, columns=['class', 'abstract'])
 person_3 = Persons.values.tolist()
