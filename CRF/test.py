@@ -1,7 +1,7 @@
 
 import nltk
 import sklearn_crfsuite
-from sklearn_crfsuite.metrics import flat_classification_report, flat_f1_score
+from sklearn_crfsuite.metrics import flat_classification_report, flat_f1_score, flatten
 from nltk import word_tokenize, pos_tag, ne_chunk
 from sklearn.externals import joblib
 from sklearn.metrics import  f1_score
@@ -30,10 +30,6 @@ def word2features(sent, i):
         'word.isdigit()': word.isdigit(),
         'postag': postag,
         'postag[:2]': postag[:2].encode("utf-8"),
-        'klass_1': tf_idf_clone_1.predict([word])[0],
-        'klass_2': tf_idf_clone_2.predict([word])[0],
-        'klass_3': tf_idf_clone_3.predict([word])[0],
-        'klass': tf_idf_clone.predict([word])[0],
     }
     if i > 0:
         word1 = sent[i-1][0]
@@ -44,10 +40,6 @@ def word2features(sent, i):
             '-1:word.isupper()': word1.isupper(),
             '-1:postag': postag1,
             '-1:postag[:2]': postag1[:2].encode("utf-8"),
-            '-1:klass_1': tf_idf_clone_1.predict([word])[0],
-            '-1:klass_2': tf_idf_clone_2.predict([word])[0],
-            '-1:klass_3': tf_idf_clone_3.predict([word])[0],
-            '-1:klass': tf_idf_clone.predict([word])[0],
         })
     else:
         features['BOS'] = True
@@ -61,10 +53,59 @@ def word2features(sent, i):
             '+1:word.isupper()': word1.isupper(),
             '+1:postag': postag1,
             '+1:postag[:2]': postag1[:2].encode("utf-8"),
+        })
+    else:
+        features['EOS'] = True
+
+    return features
+
+def word2features_new(sent, i):
+    word = sent[i][0]
+    postag = sent[i][1].encode("utf-8")
+    features = {
+        'bias': 1.0,
+        'word.lower()': word.lower(),
+        'word[-3:]': word[-3:],
+        'word.isupper()': word.isupper(),
+        'word.istitle()': word.istitle(),
+        'word.isdigit()': word.isdigit(),
+        'postag': postag,
+        'postag[:2]': postag[:2].encode("utf-8"),
+        'klass_1': tf_idf_clone_1.predict([word])[0],
+        'klass': tf_idf_clone.predict([word])[0],
+        'klass_2': tf_idf_clone_2.predict([word])[0],
+        'klass_3': tf_idf_clone_3.predict([word])[0],
+    }
+    if i > 0:
+        word1 = sent[i-1][0]
+        postag1 = sent[i-1][1].encode("utf-8")
+        features.update({
+            '-1:word.lower()': word1.lower(),
+            '-1:word.istitle()': word1.istitle(),
+            '-1:word.isupper()': word1.isupper(),
+            '-1:postag': postag1,
+            '-1:postag[:2]': postag1[:2].encode("utf-8"),
+            '-1:klass': tf_idf_clone.predict([word])[0],
+            '-1:klass_1': tf_idf_clone_1.predict([word])[0],
+            '-1:klass_2': tf_idf_clone_2.predict([word])[0],
+            '-1:klass_3': tf_idf_clone_3.predict([word])[0],
+        })
+    else:
+        features['BOS'] = True
+
+    if i < len(sent)-1:
+        word1 = sent[i+1][0]
+        postag1 = sent[i+1][1].encode("utf-8")
+        features.update({
+            '+1:word.lower()': word1.lower(),
+            '+1:word.istitle()': word1.istitle(),
+            '+1:word.isupper()': word1.isupper(),
+            '+1:postag': postag1,
+            '+1:postag[:2]': postag1[:2].encode("utf-8"),
+            '+1:klass': tf_idf_clone.predict([word])[0],
             '+1:klass_1': tf_idf_clone_1.predict([word])[0],
             '+1:klass_2': tf_idf_clone_2.predict([word])[0],
             '+1:klass_3': tf_idf_clone_3.predict([word])[0],
-            '+1:klass': tf_idf_clone.predict([word])[0],
         })
     else:
         features['EOS'] = True
@@ -72,22 +113,18 @@ def word2features(sent, i):
     return features
 
 
+
 def sent2features(sent):
     return [word2features(sent, i) for i in range(len(sent))]
+
+def sent2features_new(sent):
+    return [word2features_new(sent, i) for i in range(len(sent))]
 
 def sent2labels(sent):
     return [label.encode("utf-8") for token, postag, label in sent]
 
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
-
-crf = sklearn_crfsuite.CRF(
-    algorithm='lbfgs',
-    c1=0.1,
-    c2=0.1,
-    max_iterations=20,
-    all_possible_transitions=False,
-)
 
 ner_new = joblib.load('crf-suite-new.pkl')
 ner_old = joblib.load('crf-suite-old.pkl')
@@ -97,7 +134,8 @@ CONST_WIKI_ALL = "../data/test_data/ritter_ner.tsv"
 # dataset = np.genfromtxt(CONST_WIKI_ALL, delimiter='\t', skip_header=1)
 
 import csv
-X_test_final = []
+X_test_final_old = []
+X_test_final_new = []
 y_test_final = []
 
 
@@ -116,8 +154,35 @@ with open(CONST_WIKI_ALL,'rb') as tsvin, open('new.csv', 'wb') as csvout:
             # splitted = [re.sub('[^A-Za-z0-9]+', '', w) for w in splitted]
             splitted = [w for w in splitted if len(w) >= 1]
             # print splitted
-            X_test_final.append(sent2features((tree2conlltags(ne_chunk(pos_tag(splitted))))))
+            X_test_final_old.append(sent2features((tree2conlltags(ne_chunk(pos_tag(splitted))))))
             y_test_final.append(labels)
+            sent = ""
+            labels = []
+        else:
+            # if len(word[0].split(" ")) > 1:
+            #     print word[0].split(" ")
+            if len(word) > 2:
+                print word
+            sent = sent + " " + str.strip(word[0])
+            labels.append(word[1])
+
+with open(CONST_WIKI_ALL,'rb') as tsvin, open('new.csv', 'wb') as csvout:
+
+    sent = ""
+    labels = []
+    # try:
+    for word in tsvin:
+        word = word.split("\t")
+        word = [w.replace("\n", "") for w in word]
+
+        if word[0] == '':
+            splitted = sent.split(" ")
+            splitted = [str.strip(w) for w in splitted]
+            # splitted = [re.sub('[^A-Za-z0-9]+', '', w) for w in splitted]
+            splitted = [w for w in splitted if len(w) >= 1]
+            # print splitted
+            X_test_final_new.append(sent2features_new((tree2conlltags(ne_chunk(pos_tag(splitted))))))
+            # y_test_final.append(labels)
             sent = ""
             labels = []
         else:
@@ -131,14 +196,13 @@ with open(CONST_WIKI_ALL,'rb') as tsvin, open('new.csv', 'wb') as csvout:
 idx = 0
 print y_test_final
 
-print (ner_new.score(X_test_final, y_test_final), "new_model")
-print (ner_old.score(X_test_final, y_test_final), "old_model")
+print (ner_new.score(X_test_final_new, y_test_final), "new_model")
+print (ner_old.score(X_test_final_old, y_test_final), "old_model")
 
-new_pred = ner_new.predict(X_test_final)
-old_pred = ner_old.predict(X_test_final)
+new_pred = ner_new.predict(X_test_final_new)
+old_pred = ner_old.predict(X_test_final_old)
 
-#TOFO
-sorted_labels = definitions.KLASSES.copy()
+#TODO: move this into a method
 
 old = []
 new = []
@@ -200,8 +264,10 @@ for string in y_test_final:
 
     y.append(temp)
 
+sorted_labels = definitions.KLASSES.copy()
 del sorted_labels[4]
 
+print("------------------------------------------------------")
 print flat_f1_score(y, new, average='weighted', labels=sorted_labels.keys())
 print flat_f1_score(y, old, average='weighted', labels=sorted_labels.keys())
 print "-----------------------------------------"
