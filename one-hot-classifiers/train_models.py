@@ -140,7 +140,8 @@ X_train, X_test, y_train, y_test = train_test_split(doc_tfidf_clean, y_1, test_s
 gs_clf = gs_clf.fit(X_train, y_train)
 final_clf = gs_clf.best_estimator_.fit(X_train, y_train)
 joblib.dump(final_clf, 'tf-idf+svm_1.pkl', compress=9) # use to save model
-
+predictions = final_clf.predict(X_test)
+print('f1', f1_score(y_test, predictions))
 # #####################################################################################################################
 # #model 2
 #
@@ -208,6 +209,9 @@ X_train, X_test, y_train, y_test = train_test_split(doc_tfidf_clean, y_2, test_s
 gs_clf = gs_clf.fit(X_train, y_train)
 final_clf = gs_clf.best_estimator_.fit(X_train, y_train)
 joblib.dump(final_clf, 'tf-idf+svm_2.pkl', compress=9) # use to save model
+predictions = final_clf.predict(X_test)
+print('f1', f1_score(y_test, predictions))
+
 print "done with 2"
 # #####################################################################################################################
 #
@@ -276,6 +280,8 @@ gs_clf = GridSearchCV(text_clf_svm, parameters_svm, n_jobs=-1)
 X_train, X_test, y_train, y_test = train_test_split(doc_tfidf_clean, y_3, test_size=0.2, random_state=5)
 gs_clf = gs_clf.fit(X_train, y_train)
 final_clf = gs_clf.best_estimator_.fit(X_train, y_train)
+predictions = final_clf.predict(X_test)
+print('f1', f1_score(y_test, predictions))
 joblib.dump(final_clf, 'tf-idf+svm_3.pkl', compress=9) # use to save model
 tf_idf_clone_3 = joblib.load('tf-idf+svm_3.pkl')
 print tf_idf_clone_3.predict(["hady is a good boy"])
