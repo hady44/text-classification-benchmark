@@ -72,8 +72,8 @@ def get_tuples(dspath):
     return sentences
 
 
-dataset_wnut17_train = get_tuples('../data/test_data/WNUT/17/wnut17train.conll')
-dataset_wnut17_test = get_tuples('../data/test_data/WNUT/17/emerging.test.annotated')
+dataset_wnut17_train = get_tuples('../data/test_data/WNUT/16/train.txt')
+dataset_wnut17_test = get_tuples('../data/test_data/WNUT/16/test.txt')
 
 train_sents = dataset_wnut17_train
 test_sents = dataset_wnut17_test
@@ -202,9 +202,9 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 
-# X_train = [sent2features(s) for s in train_sents]
-# X_train_new = [sent2features_new(s) for s in train_sents]
-# y_train = [sent2labels(s) for s in train_sents]
+X_train = [sent2features(s) for s in train_sents]
+X_train_new = [sent2features_new(s) for s in train_sents]
+y_train = [sent2labels(s) for s in train_sents]
 
 X_test = [sent2features(s) for s in test_sents]
 X_test_new = [sent2features_new(s) for s in test_sents]
@@ -212,27 +212,27 @@ y_test = [sent2labels(s) for s in test_sents]
 
 print "start"
 
-# crf = sklearn_crfsuite.CRF(
-#     algorithm='lbfgs',
-#     c1=0.088,
-#     c2=0.002,
-#     max_iterations=100,
-#     all_possible_transitions=True,
-# )
-#
-# crf_new = sklearn_crfsuite.CRF(
-#     algorithm='lbfgs',
-#     c1=0.088,
-#     c2=0.002,
-#     max_iterations=100,
-#     all_possible_transitions=True,
-# )
-#
-# crf.fit(X_train, y_train)
-# crf_new.fit(X_train_new, y_train)
+crf = sklearn_crfsuite.CRF(
+    algorithm='lbfgs',
+    c1=0.088,
+    c2=0.002,
+    max_iterations=100,
+    all_possible_transitions=True,
+)
 
-# joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
-# joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
+crf_new = sklearn_crfsuite.CRF(
+    algorithm='lbfgs',
+    c1=0.088,
+    c2=0.002,
+    max_iterations=100,
+    all_possible_transitions=True,
+)
+
+crf.fit(X_train, y_train)
+crf_new.fit(X_train_new, y_train)
+
+joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
+joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
 
 ner_new = joblib.load('crf-suite-new.pkl')
 ner_old = joblib.load('crf-suite-old.pkl')
@@ -242,12 +242,21 @@ old_pred = ner_old.predict(X_test)
 
 labels = list(ner_new.classes_)
 labels.remove('O')
-labels.remove('B-creative-work')
-labels.remove('I-creative-work')
+labels.remove('B-facility')
+labels.remove('I-facility')
+labels.remove('B-movie')
+labels.remove('I-movie')
+labels.remove('B-musicartist')
+labels.remove('I-musicartist')
+labels.remove('B-other')
+labels.remove('I-other')
 labels.remove('B-product')
 labels.remove('I-product')
-labels.remove('B-group')
-labels.remove('I-group')
+labels.remove('B-sportsteam')
+labels.remove('I-sportsteam')
+labels.remove('B-tvshow')
+if 'I-tvshow' in labels:
+    labels.remove('I-tvshow')
 
 idx = 0
 for label in new_pred:
@@ -269,4 +278,3 @@ print(flat_classification_report(
 print(flat_classification_report(
     y_test, old_pred, labels=sorted_labels, digits=3
 ))
- 
