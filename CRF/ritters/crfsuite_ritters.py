@@ -5,7 +5,7 @@ from sklearn_crfsuite.metrics import flat_classification_report, flat_f1_score
 from nltk import word_tokenize, pos_tag, ne_chunk
 from sklearn.externals import joblib
 from sklearn.metrics import  f1_score
-from	sklearn.model_selection	import	StratifiedKFold, cross_val_predict,KFold, cross_val_score, cross_validate
+from	sklearn.model_selection	import	StratifiedKFold, cross_val_predict,KFold, cross_val_score, cross_validate, train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
 from	sklearn.base	import	clone
 from nltk.chunk import conlltags2tree, tree2conlltags
@@ -72,9 +72,9 @@ def get_tuples(dspath):
     return sentences
 
 
-dataset_wnut17_train = get_tuples('../../data/test_data/ritter_ner.tsv')
+dataset_ritters_train = get_tuples('../../data/test_data/ritter_ner.tsv')
 
-train_sents = dataset_wnut17_train
+train_sents = dataset_ritters_train
 
 tf_idf_clone_1 = joblib.load('../../one-hot-classifiers/tf-idf+svm_1.pkl')
 tf_idf_clone_2 = joblib.load('../../one-hot-classifiers/tf-idf+svm_2.pkl')
@@ -204,39 +204,40 @@ def sent2tokens(sent):
 X_train = [sent2features(s) for s in train_sents]
 X_train_new = [sent2features_new(s) for s in train_sents]
 y_train = [sent2labels(s) for s in train_sents]
-
+# X_train_new, X_test_new, y_train_new, y_test_new = train_test_split(X_train_new, y_train, test_size=0.2, random_state=5)
+# X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.5, random_state=5)
 # X_test = [sent2features(s) for s in test_sents]
 # X_test_new = [sent2features_new(s) for s in test_sents]
 # y_test = [sent2labels(s) for s in test_sents]
 
 print "start"
 
-# crf = sklearn_crfsuite.CRF(
-#     algorithm='lbfgs',
-#     c1=0.088,
-#     c2=0.002,
-#     max_iterations=100,
-#     all_possible_transitions=True,
-# )
-#
-# crf_new = sklearn_crfsuite.CRF(
-#     algorithm='lbfgs',
-#     c1=0.088,
-#     c2=0.002,
-#     max_iterations=100,
-#     all_possible_transitions=True,
-# )
-#
-# crf.fit(X_train, y_train)
-# crf_new.fit(X_train_new, y_train)
-#
-# joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
-# joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
+crf = sklearn_crfsuite.CRF(
+    algorithm='lbfgs',
+    c1=0.088,
+    c2=0.002,
+    max_iterations=100,
+    all_possible_transitions=True,
+)
+
+crf_new = sklearn_crfsuite.CRF(
+    algorithm='lbfgs',
+    c1=0.088,
+    c2=0.002,
+    max_iterations=100,
+    all_possible_transitions=True,
+)
+
+crf.fit(X_train, y_train)
+crf_new.fit(X_train_new, y_train)
+
+joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
+joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
 
 ner_new = joblib.load('crf-suite-new.pkl')
 ner_old = joblib.load('crf-suite-old.pkl')
 
-labels = list(ner_new.classes_)
+labels = list(ner_old.classes_)
 labels.remove('O')
 labels.remove('B-facility')
 labels.remove('I-company')
@@ -258,8 +259,14 @@ if 'I-tvshow' in labels:
 f1_scorer = make_scorer(flat_f1_score,
                         average='weighted', labels=labels)
 
+# y_pred_new = ner_new.predict(y_test_new)
+# y_pred_old = ner_old.predict(y_test)
+# print(y_pred_old)
+# print(y_test)
+# print(flat_classification_report(y_test_new, y_pred_new, labels=labels,digits=3))
+# print(flat_classification_report(y_test, y_pred_old, labels=labels, digits=3))
 
-scores_new = cross_val_score(ner_new, X_train, y_train, scoring=f1_scorer, cv=5)
+scores_new = cross_val_score(ner_new, X_train_new, y_train, scoring=f1_scorer, cv=5)
 scores_old = cross_val_score(ner_old, X_train, y_train, scoring=f1_scorer, cv=5)
 
 print(scores_new)
