@@ -13,7 +13,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
-
+import CRF.definitions as definitions
 
 lancaster_stemmer = LancasterStemmer()
 wordnet_lemmatizer = WordNetLemmatizer()
@@ -249,15 +249,74 @@ labels.remove('I-product')
 labels.remove('B-group')
 labels.remove('I-group')
 
-idx = 0
-for label in new_pred:
-    for tok in label:
-        if tok.find('corporation') != -1 :
-            print label
+sorted_labels = definitions.KLASSES.copy()
+del sorted_labels[4]
+
+#TODO: move this into a method
+
+old = []
+new = []
+y =[]
+
+for string in old_pred:
+    temp = []
+    for tok in string:
+        if tok.find("LOC") != -1 or tok.find("loc")!=-1:
+            temp.append(1)
+        else:
+            if tok.find("ORG") != -1 or tok.find('org')!=-1 or tok.find('corporation')!=-1:
+                temp.append(2)
+            else:
+                if tok.find("PER") != -1 or tok.find("per")!=-1 or tok.find("musicartist")!=-1:
+                    temp.append(3)
+                else:
+                    if tok.find("MISC") != -1:
+                        temp.append(4)
+                    else:
+                        temp.append(4)
+
+    old.append(temp)
+
+for string in new_pred:
+    temp = []
+    for tok in string:
+        if tok.find("LOC") != -1 or tok.find("loc") != -1:
+            temp.append(1)
+        else:
+            if tok.find("ORG") != -1 or tok.find('org') != -1 or tok.find('corporation') != -1:
+                temp.append(2)
+            else:
+                if tok.find("PER") != -1 or tok.find("per") != -1 or tok.find("musicartist") != -1:
+                    temp.append(3)
+                else:
+                    if tok.find("MISC") != -1:
+                        temp.append(4)
+                    else:
+                        temp.append(4)
+    new.append(temp)
+
+for string in y_test:
+    temp = []
+    for tok in string:
+        if tok.find("LOC") != -1 or tok.find("loc") != -1:
+            temp.append(1)
+        else:
+            if tok.find("ORG") != -1 or tok.find('org')!=-1 or tok.find('corporation') != -1:
+                temp.append(2)
+            else:
+                if tok.find("PER") != -1 or tok.find("per")!= -1 or tok.find("musicartist") != -1:
+                    temp.append(3)
+                else:
+                    if tok.find("MISC") != -1:
+                        temp.append(4)
+                    else:
+                        temp.append(4)
+
+    y.append(temp)
 
 print "-----------------------------------------"
-print(flat_classification_report(y_test, new_pred, labels=labels,digits=3))
-print(flat_classification_report(y_test, old_pred, labels=labels, digits=3))
+print(flat_classification_report(y, new, labels=sorted_labels.keys(), digits=3,  target_names=sorted_labels.values()))
+print(flat_classification_report(y, old, labels=sorted_labels.keys(), digits=3,  target_names=sorted_labels.values()))
 print "-----------------------------------------"
 sorted_labels = sorted(
     labels,

@@ -14,6 +14,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
+import  CRF.definitions as definitions
 
 
 lancaster_stemmer = LancasterStemmer()
@@ -185,6 +186,53 @@ def word2features_new(sent, i):
     return features
 
 
+def f1_score_mod(y_true, y_pred):
+
+    # TODO: move this into a method
+
+    new = []
+    y = []
+
+    for string in y_pred:
+        temp = []
+        for tok in string:
+            if tok.find("LOC") != -1 or tok.find("loc") != -1:
+                temp.append(1)
+            else:
+                if tok.find("ORG") != -1 or tok.find('org') != -1 or tok.find('company') != -1:
+                    temp.append(2)
+                else:
+                    if tok.find("PER") != -1 or tok.find("per") != -1 or tok.find("musicartist") != -1:
+                        temp.append(3)
+                    else:
+                        if tok.find("MISC") != -1:
+                            temp.append(4)
+                        else:
+                            temp.append(4)
+        new.append(temp)
+
+    for string in y_true:
+        temp = []
+        for tok in string:
+            if tok.find("LOC") != -1 or tok.find("loc") != -1:
+                temp.append(1)
+            else:
+                if tok.find("ORG") != -1 or tok.find('org') != -1 or tok.find('company') != -1:
+                    temp.append(2)
+                else:
+                    if tok.find("PER") != -1 or tok.find("per") != -1 or tok.find("musicartist") != -1:
+                        temp.append(3)
+                    else:
+                        if tok.find("MISC") != -1:
+                            temp.append(4)
+                        else:
+                            temp.append(4)
+
+        y.append(temp)
+
+    return flat_f1_score(y, new, average='weighted', labels=sorted_labels)
+
+
 def sent2features(sent):
     return [word2features(sent, i) for i in range(len(sent))]
 
@@ -212,27 +260,27 @@ y_train = [sent2labels(s) for s in train_sents]
 
 print "start"
 
-crf = sklearn_crfsuite.CRF(
-    algorithm='lbfgs',
-    c1=0.088,
-    c2=0.002,
-    max_iterations=100,
-    all_possible_transitions=True,
-)
-
-crf_new = sklearn_crfsuite.CRF(
-    algorithm='lbfgs',
-    c1=0.088,
-    c2=0.002,
-    max_iterations=100,
-    all_possible_transitions=True,
-)
-
-crf.fit(X_train, y_train)
-crf_new.fit(X_train_new, y_train)
-
-joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
-joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
+# crf = sklearn_crfsuite.CRF(
+#     algorithm='lbfgs',
+#     c1=0.088,
+#     c2=0.002,
+#     max_iterations=100,
+#     all_possible_transitions=True,
+# )
+#
+# crf_new = sklearn_crfsuite.CRF(
+#     algorithm='lbfgs',
+#     c1=0.088,
+#     c2=0.002,
+#     max_iterations=100,
+#     all_possible_transitions=True,
+# )
+#
+# crf.fit(X_train, y_train)
+# crf_new.fit(X_train_new, y_train)
+#
+# joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
+# joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
 
 ner_new = joblib.load('crf-suite-new.pkl')
 ner_old = joblib.load('crf-suite-old.pkl')
@@ -240,7 +288,7 @@ ner_old = joblib.load('crf-suite-old.pkl')
 labels = list(ner_old.classes_)
 labels.remove('O')
 labels.remove('B-facility')
-labels.remove('I-company')
+# labels.remove('I-company')
 labels.remove('I-facility')
 labels.remove('B-movie')
 labels.remove('I-movie')
@@ -256,7 +304,8 @@ labels.remove('B-tvshow')
 if 'I-tvshow' in labels:
     labels.remove('I-tvshow')
 
-f1_scorer = make_scorer(flat_f1_score,
+f1_scorer = make_scorer(f1_score_mod)
+f1_scorer_mod = make_scorer(flat_f1_score,
                         average='weighted', labels=labels)
 
 # y_pred_new = ner_new.predict(y_test_new)
@@ -266,8 +315,20 @@ f1_scorer = make_scorer(flat_f1_score,
 # print(flat_classification_report(y_test_new, y_pred_new, labels=labels,digits=3))
 # print(flat_classification_report(y_test, y_pred_old, labels=labels, digits=3))
 
+sorted_labels = definitions.KLASSES.copy()
+del sorted_labels[4]
+
 scores_new = cross_val_score(ner_new, X_train_new, y_train, scoring=f1_scorer, cv=5)
 scores_old = cross_val_score(ner_old, X_train, y_train, scoring=f1_scorer, cv=5)
+
+print(scores_new)
+print "----------------------"
+print(scores_old)
+
+print "----------------------"
+
+scores_new = cross_val_score(ner_new, X_train_new, y_train, scoring=f1_scorer_mod, cv=5)
+scores_old = cross_val_score(ner_old, X_train, y_train, scoring=f1_scorer_mod, cv=5)
 
 print(scores_new)
 print "----------------------"
