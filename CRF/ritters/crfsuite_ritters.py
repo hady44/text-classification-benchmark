@@ -192,7 +192,7 @@ def f1_score_mod(y_true, y_pred):
 
     new = []
     y = []
-
+    cnt = 0
     for string in y_pred:
         temp = []
         for tok in string:
@@ -333,3 +333,5 @@ scores_old = cross_val_score(ner_old, X_train, y_train, scoring=f1_scorer_mod, c
 print(scores_new)
 print "----------------------"
 print(scores_old)
+print "----------------------"
+print(labels)
