@@ -1,5 +1,8 @@
 import os
 
+RUN_TAGGER_CMD = "java -XX:ParallelGCThreads=2 -Xmx2048m" + " -jar " + "/home/hady/PycharmProjects/text-classification-benchmarks/CRF/tweetnlp/ark-tweet-nlp-0.3.2.jar" + " --model " + "/home/hady/PycharmProjects/text-classification-benchmarks/CRF/tweetnlp/model.ritter_ptb_alldata_fixed.20130723"
+
+
 NER_RITTER_PER = ['B-person', 'I-person']
 NER_RITTER_ORG = ['B-company', 'I-company']
 NER_RITTER_LOC = ['B-geo-loc', 'I-geo-loc']

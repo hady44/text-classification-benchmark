@@ -4,6 +4,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
 import pprint
+from sklearn.externals import joblib
+
 
 lancaster_stemmer = LancasterStemmer()
 wordnet_lemmatizer = WordNetLemmatizer()
@@ -132,14 +134,131 @@ def stat_report(dataset_path):
                     'tot_toks': tot_tokens,
                 }
     pp.pprint(res)
+    return res
+
+def stat_report_17(dataset_path):
+    person = 0
+    location = 0
+    corporation = 0
+    product = 0
+    creative_work = 0
+    group = 0
+
+    dataset, tot_sentences, tot_tokens = get_tuples(dataset_path)
+
+    labels = [sent2labels(s) for s in dataset]
+
+    for string in labels:
+        for tok in string:
+            if tok.find("B-person") != -1:
+                person += 1
+
+            if tok.find("B-location") != -1:
+                location += 1
+
+            if tok.find("B-corporation") != -1:
+                corporation += 1
+
+            if tok.find("B-product") != -1:
+                product += 1
+
+            if tok.find("B-creative-work") != -1:
+                creative_work += 1
+
+            if tok.find("B-group") != -1:
+                group += 1
+            res = {
+                    'person' : person,
+                    'location' : location,
+                    'corporation':corporation,
+                    'product': product,
+                    'creative-work': creative_work,
+                    'group': group,
+                    'tot_sents': tot_sentences,
+                    'tot_toks': tot_tokens,
+                }
+    pp.pprint(res)
+    return res
+
+# print ("train")
+# stat_report('../test_data/WNUT/16/2016.conll.freebase') #test
+# print("-----------------------------------------")
+# # print("test")
+# stat_report('../test_data/WNUT/16/train.txt') # train
+# stat_report('../test_data/WNUT/16/test.txt') # test
+# print("-----------------------------------------")
+# res = stat_report('../test_data/WNUT/15/2015.conll.freebase')
+# sum = 0
+# for elem in res:
+#     if elem != 'tot_sents' and elem != 'tot_toks':
+#         sum+= res[elem]
+#
+# print sumx
+#
+# exit(0)
+stat_report('../test_data/ritter_ner.tsv')
+exit(0)
+stat_report_17('../test_data/WNUT/17/wnut17train.conll') # train
+stat_report_17('../test_data/WNUT/17/emerging.test.annotated') # train
 
 
-print ("train")
-stat_report('../test_data/WNUT/16/2016.conll.freebase')
-print("-----------------------------------------")
-# print("test")
-stat_report('../test_data/WNUT/16/train.txt')
-stat_report('../test_data/WNUT/15/2015.conll.freebase')
+dataset_wnut16_train, X, Y = get_tuples('../test_data/WNUT/16/train.txt')
+# dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
+dataset_wnut17_train, X, Y = get_tuples('../test_data/WNUT/17/wnut17train.conll')
+# dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
+dataset_ritters_train, X, Y = get_tuples('../test_data/ritter_ner.tsv')
+
+cnt = 0
+rem = []
+
+for sent1 in dataset_ritters_train:
+    for sent2 in dataset_wnut16_train:
+        sim = 0
+        for tok1 in sent1:
+            for tok2 in sent2:
+                if tok1 == tok2:
+                    sim+=1
+        if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+            cnt+=1
+            rem.append(sent1)
+print cnt, len(dataset_ritters_train)
+for sent1 in dataset_ritters_train:
+    for sent2 in dataset_wnut17_train:
+        sim = 0
+        for tok1 in sent1:
+            for tok2 in sent2:
+                if tok1 == tok2:
+                    sim+=1
+        if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+            cnt+=1
+            rem.append(sent1)
+
+print cnt, len(dataset_ritters_train)
+cnt = 0
+for sent1 in dataset_ritters_train:
+    for sent2 in dataset_wnut16_train:
+        if sent1 == sent2:
+            rem.append(sent1)
+            cnt+=1
+            # break
+print cnt, len(dataset_ritters_train)
+
+for sent1 in dataset_ritters_train:
+    for sent2 in dataset_wnut17_train:
+        if sent1 == sent2:
+            rem.append(sent1)
+            cnt+=1
+            # break
+
+print cnt, len(dataset_ritters_train)
+
+for elem in rem:
+    if elem in dataset_ritters_train:
+        dataset_ritters_train.remove(elem)
+
+print cnt, len(dataset_ritters_train)
+
+
 
 # dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
 # dataset_wnut16_train = get_tuples('../test_data/WNUT/16/train.txt')

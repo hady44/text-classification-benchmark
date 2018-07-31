@@ -1,7 +1,9 @@
 import nltk
 import sklearn_crfsuite
 from numpy.ma import average
-from sklearn_crfsuite.metrics import flat_classification_report, flat_f1_score
+import numpy as np
+from sklearn.svm import SVC
+from sklearn_crfsuite.metrics import flat_classification_report, flat_f1_score, flatten, _flattens_y
 from nltk import word_tokenize, pos_tag, ne_chunk
 from sklearn.externals import joblib
 from sklearn.metrics import  f1_score
@@ -9,12 +11,22 @@ from	sklearn.model_selection	import	StratifiedKFold, cross_val_predict,KFold, cr
 from sklearn.preprocessing import MultiLabelBinarizer
 from	sklearn.base	import	clone
 from nltk.chunk import conlltags2tree, tree2conlltags
-from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score, classification_report
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
 import  CRF.definitions as definitions
+from sklearn.model_selection import StratifiedKFold
+from CMUTweetTagger import runtagger_parse
+from spacy.language import Tokenizer,GoldParse
+from spacy.tokenizer import Tokenizer
+from spacy.attrs import ORTH, LEMMA
+import spacy
+from sklearn.linear_model import SGDClassifier
+
+nlp = spacy.load("en_core_web_sm")
+tokenizer = Tokenizer(nlp.vocab)
 
 lancaster_stemmer = LancasterStemmer()
 wordnet_lemmatizer = WordNetLemmatizer()
@@ -50,37 +62,48 @@ def get_tuples(dspath):
             if line.strip() == '':
                 if len(tokens) != 0:
                     #poss = [x[1].decode('utf-8') for x in nltk.pos_tag(nltk.word_tokenize(s[:-1]))]
-                    poss = [x[1].decode('utf-8') for x in nltk.pos_tag(tknzr.tokenize(s[:-1]))]
 
+                    tknz = tokenizer(s)
+                    tknz2 = []
+                    # print len(tknz)
+                    for x in tknz:
+                        x = str(x).decode('utf-8')
+                        if x == u"  ":
+                            tknz2.append(u" ")
+                            tknz2.append(u" ")
+                        else:
+                            tknz2.append(x)
 
-                    #if len(poss) == len(tokens): # tokenization doesnt affect position of NERs, i.e., same tokenization
+                    # print tknz2
+                    poss = [x[1].decode('utf-8') for x in nltk.pos_tag(tknz2)]
+
+                    # gold = GoldParse(doc, words=words, tags=tags)
+
+                    # assert len(poss) == len(tokens) == len(ners)
+
                     sentences.append(zip(tokens, poss, ners))
                     #else:
                     #    aux = 0
                     #    for i in range(len()):
                     #        if aux <= tokens[i]
-
+                    # if len(poss) != len(tokens) or len(poss) != len(ners):
+                    #     print (poss)
+                    #     print tknz2, len(tknz2)
+                    #     print(tokens), len(tokens)
+                    #     print(ners)
+                    #     print "---------------------------"
                     tokens = []
                     ners = []
                     s = ''
                     tot_sentences += 1
+
+
             else:
                 s += token + ' '
                 tokens.append(token)
                 ners.append(ner)
 
     return sentences
-
-
-dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
-
-train_sents = dataset_wnut15_train
-
-tf_idf_clone_1 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_1.pkl')
-tf_idf_clone_2 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_2.pkl')
-tf_idf_clone_3 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_3.pkl')
-tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+svm_new.pkl')
-
 
 def word2features(sent, i):
     word = sent[i][0]
@@ -185,78 +208,129 @@ def word2features_new(sent, i):
     return features
 
 
-def f1_score_mod(y_true, y_pred):
+def remove_extra_features(X_train_new, X_test_new):
+    X_train = []
+    X_test = []
+    for sentence in X_train_new:
+        tmp = []
+        for token in sentence:
+            del token['klass']
+            del token['klass_1']
+            del token['klass_2']
+            del token['klass_3']
 
-    # TODO: move this into a method
+            if '+1:klass' in token:
+                del token['+1:klass']
+                del token['+1:klass_1']
+                del token['+1:klass_2']
+                del token['+1:klass_3']
 
-    new = []
+            if '-1:klass' in token:
+                del token['-1:klass']
+                del token['-1:klass_1']
+                del token['-1:klass_2']
+                del token['-1:klass_3']
+            tmp.append(token)
+            X_train.append(tmp)
+
+    for sentence in X_test_new:
+            tmp = []
+            for token in sentence:
+
+                del token['klass']
+                del token['klass_1']
+                del token['klass_2']
+                del token['klass_3']
+
+                if '+1:klass' in token:
+                    del token['+1:klass']
+                    del token['+1:klass_1']
+                    del token['+1:klass_2']
+                    del token['+1:klass_3']
+
+                if '-1:klass' in token:
+                    del token['-1:klass']
+                    del token['-1:klass_1']
+                    del token['-1:klass_2']
+                    del token['-1:klass_3']
+                tmp.append(token)
+                X_test.append(tmp)
+
+    return X_train, X_test
+
+def group_labels(labels):
     y = []
-
-    for string in y_pred:
+    for string in labels:
         temp = []
         for tok in string:
-            if tok.find("LOC") != -1 or tok.find("loc") != -1:
-                temp.append(1)
+            if tok.find("geo-loc") != -1 or tok.find("location") != -1:
+                temp.append("LOC")
+            elif tok.find("company") != -1 or tok.find("corporation") != -1:
+                temp.append("ORG")
+            elif tok.find("person") != -1:
+                temp.append("PER")
             else:
-                if tok.find("ORG") != -1 or tok.find('org') != -1 or tok.find('company') != -1:
-                    temp.append(2)
-                else:
-                    if tok.find("PER") != -1 or tok.find("per") != -1 or tok.find("musicartist") != -1:
-                        temp.append(3)
-                    else:
-                        if tok.find("MISC") != -1:
-                            temp.append(4)
-                        else:
-                            temp.append(4)
-        new.append(temp)
-
-    for string in y_true:
-        temp = []
-        for tok in string:
-            if tok.find("LOC") != -1 or tok.find("loc") != -1:
-                temp.append(1)
-            else:
-                if tok.find("ORG") != -1 or tok.find('org') != -1 or tok.find('company') != -1:
-                    temp.append(2)
-                else:
-                    if tok.find("PER") != -1 or tok.find("per") != -1 or tok.find("musicartist") != -1:
-                        temp.append(3)
-                    else:
-                        if tok.find("MISC") != -1:
-                            temp.append(4)
-                        else:
-                            temp.append(4)
+                temp.append("O")
 
         y.append(temp)
 
-    return flat_f1_score(y, new, average='weighted', labels=sorted_labels)
+    return y
+
+
+def group_labels_num(labels):
+    y = []
+    for string in labels:
+        temp = []
+        for tok in string:
+            if tok == 1:
+                temp.append("LOC")
+            elif tok == 2:
+                temp.append("ORG")
+            elif tok == 3:
+                temp.append("PER")
+            else:
+                temp.append("O")
+
+        y.append(temp)
+
+    return y
 
 
 def sent2features(sent):
     return [word2features(sent, i) for i in range(len(sent))]
 
-
 def sent2features_new(sent):
     return [word2features_new(sent, i) for i in range(len(sent))]
-
 
 def sent2labels(sent):
     return [label.encode("utf-8") for token, postag, label in sent]
 
-
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
+# dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
+#
+# train_sents = dataset_wnut15_train
 
-X_train = [sent2features(s) for s in train_sents]
-X_train_new = [sent2features_new(s) for s in train_sents]
-y_train = [sent2labels(s) for s in train_sents]
-# X_train_new, X_test_new, y_train_new, y_test_new = train_test_split(X_train_new, y_train, test_size=0.2, random_state=5)
-# X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.5, random_state=5)
-# X_test = [sent2features(s) for s in test_sents]
-# X_test_new = [sent2features_new(s) for s in test_sents]
-# y_test = [sent2labels(s) for s in test_sents]
+tf_idf_clone_1 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_1.pkl')
+tf_idf_clone_2 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_2.pkl')
+tf_idf_clone_3 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_3.pkl')
+tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+svm_new.pkl')
 
+# X_train = [sent2features(s) for s in train_sents]
+# X_train_new = [sent2features_new(s) for s in train_sents]
+# y_train_raw = [sent2labels(s) for s in train_sents]
+
+# print y_train
+# joblib.dump(X_train, 'X_train.pkl', compress=9)
+# joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
+# joblib.dump(y_train_raw, 'y_train.pkl', compress=9)
+
+X_train = joblib.load('X_train.pkl')
+X_train_new = joblib.load('X_train_new.pkl')
+y_train_raw = joblib.load('y_train.pkl')
+
+y_train = group_labels(y_train_raw)
 print "start"
 
 crf = sklearn_crfsuite.CRF(
@@ -275,62 +349,97 @@ crf_new = sklearn_crfsuite.CRF(
     all_possible_transitions=True,
 )
 
-crf.fit(X_train, y_train)
-crf_new.fit(X_train_new, y_train)
+# crf.fit(X_train, y_train)
+# crf_new.fit(X_train_new, y_train)
+#
+# joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
+# joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
 
-joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
-joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
-
-ner_new = joblib.load('crf-suite-new.pkl')
-ner_old = joblib.load('crf-suite-old.pkl')
-
-labels = list(ner_old.classes_)
-labels.remove('O')
-labels.remove('B-facility')
-# labels.remove('I-company')
-labels.remove('I-facility')
-labels.remove('B-movie')
-labels.remove('I-movie')
-labels.remove('B-musicartist')
-labels.remove('I-musicartist')
-labels.remove('B-other')
-labels.remove('I-other')
-labels.remove('B-product')
-labels.remove('I-product')
-labels.remove('B-sportsteam')
-labels.remove('I-sportsteam')
-labels.remove('B-tvshow')
-if 'I-tvshow' in labels:
-    labels.remove('I-tvshow')
+# ner_new = joblib.load('crf-suite-new.pkl')
+# ner_old = joblib.load('crf-suite-old.pkl')
 
 
 sorted_labels = definitions.KLASSES.copy()
 del sorted_labels[4]
 
-f1_scorer = make_scorer(f1_score_mod)
-f1_scorer_mod = make_scorer(flat_f1_score,
-                        average='weighted', labels=labels)
+per = 0
+loc = 0
+org = 0
 
-# y_pred_new = ner_new.predict(y_test_new)
-# y_pred_old = ner_old.predict(y_test)
-# print(y_pred_old)
-# print(y_test)
-# print(flat_classification_report(y_test_new, y_pred_new, labels=labels,digits=3))
-# print(flat_classification_report(y_test, y_pred_old, labels=labels, digits=3))
+for labels in y_train:
+    for label in labels:
+        if label.find("PER")!=-1:
+            per+=1
+        if label.find("LOC")!=-1:
+            loc+=1
+        if label.find("ORG")!=-1:
+            org+=1
 
-scores_new = cross_val_score(ner_new, X_train_new, y_train, scoring=f1_scorer, cv=5)
-scores_old = cross_val_score(ner_old, X_train, y_train, scoring=f1_scorer, cv=5)
+print(per, loc, org)
+for i in range(5):
+    cur = np.random
+    X_train_new  = joblib.load('X_train_new.pkl')
+    X_train_folds_new, X_test_folds_new, y_train_folds, y_test_folds = train_test_split(X_train_new, y_train, test_size=0.33, random_state=cur)
 
-print(scores_new)
-print "----------------------"
-print(scores_old)
+    crf_new.fit(X_train_folds_new, y_train_folds)
+    y_pred_new = crf_new.predict(X_test_folds_new)
 
-print "----------------------"
+    X_train_folds = []
+    X_test_folds = []
 
-scores_new = cross_val_score(ner_new, X_train_new, y_train, scoring=f1_scorer_mod, cv=5)
-scores_old = cross_val_score(ner_old, X_train, y_train, scoring=f1_scorer_mod, cv=5)
+    for sentence in X_train_folds_new:
+        tmp = []
+        for token in sentence:
+            del token['klass']
+            del token['klass_1']
+            del token['klass_2']
+            del token['klass_3']
 
-print(scores_new)
-print "----------------------"
-print(scores_old)
+            if '+1:klass' in token:
+                del token['+1:klass']
+                del token['+1:klass_1']
+                del token['+1:klass_2']
+                del token['+1:klass_3']
+
+            if '-1:klass' in token:
+                del token['-1:klass']
+                del token['-1:klass_1']
+                del token['-1:klass_2']
+                del token['-1:klass_3']
+            tmp.append(token)
+        X_train_folds.append(tmp)
+
+    for sentence in X_test_folds_new:
+            tmp = []
+            for token in sentence:
+
+                del token['klass']
+                del token['klass_1']
+                del token['klass_2']
+                del token['klass_3']
+
+                if '+1:klass' in token:
+                    del token['+1:klass']
+                    del token['+1:klass_1']
+                    del token['+1:klass_2']
+                    del token['+1:klass_3']
+
+                if '-1:klass' in token:
+                    del token['-1:klass']
+                    del token['-1:klass_1']
+                    del token['-1:klass_2']
+                    del token['-1:klass_3']
+                tmp.append(token)
+            X_test_folds.append(tmp)
+
+    crf.fit(X_train_folds, y_train_folds)
+
+    y_pred = crf.predict(X_test_folds)
+
+    print(flat_classification_report(y_test_folds, y_pred, labels=sorted_labels.values(), digits=3,
+                                     target_names=sorted_labels.values()))
+    print "------------------- new ---------------------"
+    print(flat_classification_report(y_test_folds, y_pred_new, labels=sorted_labels.values(), digits=3,
+                                     target_names=sorted_labels.values()))
+    print "*****************************************************************************************"
 

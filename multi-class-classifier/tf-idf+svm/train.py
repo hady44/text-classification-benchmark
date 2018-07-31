@@ -65,19 +65,19 @@ Others = pd.read_csv('../../data/dbpedia/final_data/Other.csv')
 
 #---------------------------------  preprocessing -------------------------------
 
-organization = Organizations.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
-organization = organization.head(100000)
-
-location = Locations.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
-location = location.head(100000)
-
-other = Others.sample(frac=1).reset_index(drop=True) #shuffle and pick top 33k from each other class
-other = other.head(100000)
+# organization = Organizations.sample(frac=1).reset_index(drop=True) #shuffle
+# organization = organization.head(100000)
+#
+# location = Locations.sample(frac=1).reset_index(drop=True) #shuffle
+# location = location.head(100000)
+#
+# other = Others.sample(frac=1).reset_index(drop=True) #shuffle
+# other = other.head(100000)
 
 person = Persons.values.tolist()
-location = location.values.tolist()
-organization = organization.values.tolist()
-other = other.values.tolist()
+location = Locations.values.tolist()
+organization = Organizations.values.tolist()
+other = Others.values.tolist()
 dataset = []
 
 for per in person:
