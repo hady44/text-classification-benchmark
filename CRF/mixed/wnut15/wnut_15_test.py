@@ -1,25 +1,12 @@
 import nltk
 import sklearn_crfsuite
-from numpy.ma import average
-import numpy as np
-from sklearn.svm import SVC
-from sklearn_crfsuite.metrics import flat_classification_report, flat_f1_score, flatten, _flattens_y
-from nltk import word_tokenize, pos_tag, ne_chunk
+from sklearn_crfsuite.metrics import flat_classification_report
 from sklearn.externals import joblib
-from sklearn.metrics import  f1_score
-from	sklearn.model_selection	import	StratifiedKFold, cross_val_predict,KFold, cross_val_score, cross_validate, train_test_split
-from sklearn.preprocessing import MultiLabelBinarizer
-from	sklearn.base	import	clone
-from nltk.chunk import conlltags2tree, tree2conlltags
-from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score, classification_report
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
 import  CRF.definitions as definitions
-from sklearn.model_selection import StratifiedKFold
-from CMUTweetTagger import runtagger_parse
-from spacy.language import Tokenizer,GoldParse
 from spacy.tokenizer import Tokenizer
 from spacy.attrs import ORTH, LEMMA
 import spacy
@@ -104,6 +91,64 @@ def get_tuples(dspath):
                 ners.append(ner)
 
     return sentences
+
+
+def remove_extra_features(X_train_new, X_test_new):
+    train = []
+    test = []
+
+    train.extend(X_train_new)
+    test.extend(X_test_new)
+
+    X_train = []
+    X_test = []
+
+    for sentence in train:
+        tmp = []
+        for token in sentence:
+            del token['klass']
+            del token['klass_1']
+            del token['klass_2']
+            del token['klass_3']
+
+            if '+1:klass' in token:
+                del token['+1:klass']
+                del token['+1:klass_1']
+                del token['+1:klass_2']
+                del token['+1:klass_3']
+
+            if '-1:klass' in token:
+                del token['-1:klass']
+                del token['-1:klass_1']
+                del token['-1:klass_2']
+                del token['-1:klass_3']
+            tmp.append(token)
+        X_train.append(tmp)
+
+    for sentence in test:
+        tmp = []
+        for token in sentence:
+
+            del token['klass']
+            del token['klass_1']
+            del token['klass_2']
+            del token['klass_3']
+
+            if '+1:klass' in token:
+                del token['+1:klass']
+                del token['+1:klass_1']
+                del token['+1:klass_2']
+                del token['+1:klass_3']
+
+            if '-1:klass' in token:
+                del token['-1:klass']
+                del token['-1:klass_1']
+                del token['-1:klass_2']
+                del token['-1:klass_3']
+            tmp.append(token)
+        X_test.append(tmp)
+
+    return X_train, X_test
 
 def word2features(sent, i):
     word = sent[i][0]
@@ -207,38 +252,22 @@ def word2features_new(sent, i):
 
     return features
 
+
 def group_labels(labels):
     y = []
     for string in labels:
         temp = []
         for tok in string:
-            if tok.find("geo-loc") != -1 or tok.find("location") != -1:
+            if tok.find("B-geo-loc") != -1 or tok.find("B-location") != -1:
                 temp.append("LOC")
-            elif tok.find("company") != -1 or tok.find("corporation") != -1:
-                temp.append("ORG")
-            elif tok.find("person") != -1:
-                temp.append("PER")
             else:
-                temp.append("O")
-
-        y.append(temp)
-
-    return y
-
-
-def group_labels_num(labels):
-    y = []
-    for string in labels:
-        temp = []
-        for tok in string:
-            if tok == 1:
-                temp.append("LOC")
-            elif tok == 2:
-                temp.append("ORG")
-            elif tok == 3:
-                temp.append("PER")
-            else:
-                temp.append("O")
+                if tok.find("B-company") != -1 or tok.find("B-corporation") != -1:
+                    temp.append("ORG")
+                else:
+                    if tok.find("B-person") != -1:
+                        temp.append("PER")
+                    else:
+                        temp.append("O")
 
         y.append(temp)
 
@@ -248,39 +277,132 @@ def group_labels_num(labels):
 def sent2features(sent):
     return [word2features(sent, i) for i in range(len(sent))]
 
+
 def sent2features_new(sent):
     return [word2features_new(sent, i) for i in range(len(sent))]
+
 
 def sent2labels(sent):
     return [label.encode("utf-8") for token, postag, label in sent]
 
+
 def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
-dataset_ritters_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
+
+dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
+# dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
+dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
+# dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
+dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
+
+dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
+
+# cnt = 0
+# rem = []
+#
+# for sent1 in dataset_ritters_train:
+#     for sent2 in dataset_wnut16_train:
+#         sim = 0
+#         for tok1 in sent1:
+#             for tok2 in sent2:
+#                 if tok1 == tok2:
+#                     sim+=1
+#         if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+#             cnt+=1
+#             rem.append(sent1)
+# print cnt, len(dataset_ritters_train)
+# for sent1 in dataset_ritters_train:
+#     for sent2 in dataset_wnut17_train:
+#         sim = 0
+#         for tok1 in sent1:
+#             for tok2 in sent2:
+#                 if tok1 == tok2:
+#                     sim+=1
+#         if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+#             cnt+=1
+#             rem.append(sent1)
+#
+# print cnt, len(dataset_ritters_train)
+#
+# for elem in rem:
+#     if elem in dataset_ritters_train:
+#         dataset_ritters_train.remove(elem)
+# print cnt, len(dataset_ritters_train)
 
 train_sents = dataset_ritters_train
-print len(train_sents)
+# train_sents.extend(dataset_wnut16_train)
+train_sents.extend(dataset_wnut16_test)
+# train_sents.extend(dataset_wnut17_train)
+train_sents.extend(dataset_wnut17_test)
+
+
+test_sents =  dataset_wnut15_train
 
 tf_idf_clone_1 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_1.pkl')
 tf_idf_clone_2 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_2.pkl')
 tf_idf_clone_3 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_3.pkl')
 tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+svm_new.pkl')
 
-# X_train = [sent2features(s) for s in train_sents]
-# X_train_new = [sent2features_new(s) for s in train_sents]
-# y_train_raw = [sent2labels(s) for s in train_sents]
 
-# print y_train
-# joblib.dump(X_train, 'X_train.pkl', compress=9)
-# joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
-# joblib.dump(y_train_raw, 'y_train.pkl', compress=9)
+#extract new features
+print "Extracting new features"
+X_train_new = [sent2features_new(s) for s in train_sents]
+X_test_new = [sent2features_new(s) for s in test_sents]
 
-X_train = joblib.load('X_train.pkl')
-X_train_new = joblib.load('X_train_new.pkl')
-y_train_raw = joblib.load('y_train.pkl')
+#extract raw labels
+print "Extracting labels"
+y_train_raw = [sent2labels(s) for s in train_sents]
+y_test_raw = [sent2labels(s) for s in test_sents]
 
+print "Grouping labels"
+#grouping raw labels
 y_train = group_labels(y_train_raw)
+y_test = group_labels(y_test_raw)
+
+#dumping new features to avoid losing them later
+print "Dumping new features"
+joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
+joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
+
+#dump labels
+print "Dumping labels"
+joblib.dump(y_train, 'y_train.pkl', compress=9)
+joblib.dump(y_test, 'y_test.pkl', compress=9)
+
+# load new features initially
+print "Loading new features"
+X_train_new = joblib.load('X_train_new.pkl')
+X_test_new = joblib.load('X_test_new.pkl')
+#
+# #extract old features from new features
+print "Extracting old features"
+X_train, X_test = remove_extra_features(X_train_new, X_test_new)
+
+#dump old set of features
+print "Dumping old features"
+joblib.dump(X_train, 'X_train.pkl', compress=9)
+joblib.dump(X_test, 'X_test.pkl', compress=9)
+
+#load new features to restore them to their original state
+print "Loading new features to restore them to their original state"
+X_train_new = joblib.load('X_train_new.pkl')
+X_test_new = joblib.load('X_test_new.pkl')
+
+#load old features
+print "Loading old features"
+X_train = joblib.load('X_train.pkl')
+X_test = joblib.load('X_test.pkl')
+
+#load labels
+print "Loading labels"
+y_train = joblib.load('y_train.pkl')
+y_test = joblib.load('y_test.pkl')
+
+print len(y_train), len(X_train_new)
+print len(y_train), len(X_train)
+
+
 
 print "start"
 
@@ -300,98 +422,24 @@ crf_new = sklearn_crfsuite.CRF(
     all_possible_transitions=True,
 )
 
-# crf.fit(X_train, y_train)
-# crf_new.fit(X_train_new, y_train)
-#
-# joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
-# joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
+crf.fit(X_train, y_train)
+crf_new.fit(X_train_new, y_train)
 
-# ner_new = joblib.load('crf-suite-new.pkl')
-# ner_old = joblib.load('crf-suite-old.pkl')
+joblib.dump(crf, 'crf-suite-old.pkl', compress=9)
+joblib.dump(crf_new, 'crf-suite-new.pkl', compress=9)
 
+ner_new = joblib.load('crf-suite-new.pkl')
+ner_old = joblib.load('crf-suite-old.pkl')
+
+new_pred = ner_new.predict(X_test_new)
+old_pred = ner_old.predict(X_test)
 
 sorted_labels = definitions.KLASSES.copy()
 del sorted_labels[4]
 
-per = 0
-loc = 0
-org = 0
-
-for labels in y_train:
-    for label in labels:
-        if label.find("PER")!=-1:
-            per+=1
-        if label.find("LOC")!=-1:
-            loc+=1
-        if label.find("ORG")!=-1:
-            org+=1
-
-print(per, loc, org)
-
-for i in range(5):
-    cur = np.random
-    X_train_new  = joblib.load('X_train_new.pkl')
-    X_train_folds_new, X_test_folds_new, y_train_folds, y_test_folds = train_test_split(X_train_new, y_train, test_size=0.33, random_state=cur)
-
-    crf_new.fit(X_train_folds_new, y_train_folds)
-    y_pred_new = crf_new.predict(X_test_folds_new)
-
-    X_train_folds = []
-    X_test_folds = []
-
-    for sentence in X_train_folds_new:
-        tmp = []
-        for token in sentence:
-            del token['klass']
-            del token['klass_1']
-            del token['klass_2']
-            del token['klass_3']
-
-            if '+1:klass' in token:
-                del token['+1:klass']
-                del token['+1:klass_1']
-                del token['+1:klass_2']
-                del token['+1:klass_3']
-
-            if '-1:klass' in token:
-                del token['-1:klass']
-                del token['-1:klass_1']
-                del token['-1:klass_2']
-                del token['-1:klass_3']
-            tmp.append(token)
-        X_train_folds.append(tmp)
-
-    for sentence in X_test_folds_new:
-            tmp = []
-            for token in sentence:
-
-                del token['klass']
-                del token['klass_1']
-                del token['klass_2']
-                del token['klass_3']
-
-                if '+1:klass' in token:
-                    del token['+1:klass']
-                    del token['+1:klass_1']
-                    del token['+1:klass_2']
-                    del token['+1:klass_3']
-
-                if '-1:klass' in token:
-                    del token['-1:klass']
-                    del token['-1:klass_1']
-                    del token['-1:klass_2']
-                    del token['-1:klass_3']
-                tmp.append(token)
-            X_test_folds.append(tmp)
-
-    crf.fit(X_train_folds, y_train_folds)
-
-    y_pred = crf.predict(X_test_folds)
-
-    print(flat_classification_report(y_test_folds, y_pred, labels=sorted_labels.values(), digits=3,
-                                     target_names=sorted_labels.values()))
-    print "------------------- new ---------------------"
-    print(flat_classification_report(y_test_folds, y_pred_new, labels=sorted_labels.values(), digits=3,
-                                     target_names=sorted_labels.values()))
-    print "*****************************************************************************************"
-
+print "-----------------------------------------"
+print(flat_classification_report(y_test, new_pred, labels=sorted_labels.values(), digits=3,
+                                 target_names=sorted_labels.values()))
+print(flat_classification_report(y_test, old_pred, labels=sorted_labels.values(), digits=3,
+                                 target_names=sorted_labels.values()))
+print "-----------------------------------------"

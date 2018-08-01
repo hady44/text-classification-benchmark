@@ -197,6 +197,8 @@ def stat_report_17(dataset_path):
 #
 # exit(0)
 stat_report('../test_data/ritter_ner.tsv')
+stat_report('../test_data/WNUT/16/2016.conll.freebase')
+stat_report('../test_data/WNUT/16/test.txt')
 exit(0)
 stat_report_17('../test_data/WNUT/17/wnut17train.conll') # train
 stat_report_17('../test_data/WNUT/17/emerging.test.annotated') # train

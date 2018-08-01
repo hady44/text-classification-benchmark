@@ -290,13 +290,13 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 
-dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
-# dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
-dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
-# dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
-dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
-
-dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
+# dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
+# # dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
+# dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
+# # dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
+# dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
+#
+# dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
 
 # cnt = 0
 # rem = []
@@ -330,14 +330,14 @@ dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
 #         dataset_ritters_train.remove(elem)
 # print cnt, len(dataset_ritters_train)
 
-train_sents = dataset_wnut15_train
-# train_sents.extend(dataset_wnut16_train)
-train_sents.extend(dataset_wnut16_test)
-# train_sents.extend(dataset_wnut17_train)
-train_sents.extend(dataset_wnut17_test)
+# train_sents = dataset_wnut15_train
+# # train_sents.extend(dataset_wnut16_train)
+# train_sents.extend(dataset_wnut16_test)
+# # train_sents.extend(dataset_wnut17_train)
+# train_sents.extend(dataset_wnut17_test)
 
 
-test_sents = dataset_ritters_train
+# test_sents = dataset_ritters_train
 
 tf_idf_clone_1 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_1.pkl')
 tf_idf_clone_2 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_2.pkl')
@@ -346,29 +346,29 @@ tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+sv
 
 
 #extract new features
-print "Extracting new features"
-X_train_new = [sent2features_new(s) for s in train_sents]
-X_test_new = [sent2features_new(s) for s in test_sents]
-
-#extract raw labels
-print "Extracting labels"
-y_train_raw = [sent2labels(s) for s in train_sents]
-y_test_raw = [sent2labels(s) for s in test_sents]
-
-print "Grouping labels"
-#grouping raw labels
-y_train = group_labels(y_train_raw)
-y_test = group_labels(y_test_raw)
-
-#dumping new features to avoid losing them later
-print "Dumping new features"
-joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
-joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
-
-#dump labels
-print "Dumping labels"
-joblib.dump(y_train, 'y_train.pkl', compress=9)
-joblib.dump(y_test, 'y_test.pkl', compress=9)
+# print "Extracting new features"
+# X_train_new = [sent2features_new(s) for s in train_sents]
+# X_test_new = [sent2features_new(s) for s in test_sents]
+#
+# #extract raw labels
+# print "Extracting labels"
+# y_train_raw = [sent2labels(s) for s in train_sents]
+# y_test_raw = [sent2labels(s) for s in test_sents]
+#
+# print "Grouping labels"
+# #grouping raw labels
+# y_train = group_labels(y_train_raw)
+# y_test = group_labels(y_test_raw)
+#
+# #dumping new features to avoid losing them later
+# print "Dumping new features"
+# joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
+# joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
+#
+# #dump labels
+# print "Dumping labels"
+# joblib.dump(y_train, 'y_train.pkl', compress=9)
+# joblib.dump(y_test, 'y_test.pkl', compress=9)
 
 # load new features initially
 print "Loading new features"
