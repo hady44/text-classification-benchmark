@@ -5,7 +5,7 @@ from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
 import pprint
 from sklearn.externals import joblib
-
+import copy
 
 lancaster_stemmer = LancasterStemmer()
 wordnet_lemmatizer = WordNetLemmatizer()
@@ -180,6 +180,17 @@ def stat_report_17(dataset_path):
     pp.pprint(res)
     return res
 
+
+def simialr(sent1, sent2):
+    sim = 0
+    for tok1 in sent1:
+        for tok2 in sent2:
+            if tok1 == tok2:
+                sim += 1
+    if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+        return True
+    return False
+
 # print ("train")
 # stat_report('../test_data/WNUT/16/2016.conll.freebase') #test
 # print("-----------------------------------------")
@@ -196,33 +207,61 @@ def stat_report_17(dataset_path):
 # print sumx
 #
 # exit(0)
-stat_report('../test_data/ritter_ner.tsv')
-stat_report('../test_data/WNUT/16/2016.conll.freebase')
-stat_report('../test_data/WNUT/16/test.txt')
-exit(0)
-stat_report_17('../test_data/WNUT/17/wnut17train.conll') # train
-stat_report_17('../test_data/WNUT/17/emerging.test.annotated') # train
+# stat_report('../test_data/ritter_ner.tsv')
+# stat_report('../test_data/WNUT/16/2016.conll.freebase')
+# stat_report('../test_data/WNUT/16/test.txt')
+# exit(0)
+# stat_report_17('../test_data/WNUT/17/wnut17train.conll') # train
+# stat_report_17('../test_data/WNUT/17/emerging.test.annotated') # train
 
 
 dataset_wnut16_train, X, Y = get_tuples('../test_data/WNUT/16/train.txt')
+clean_tweets, X, Y = get_tuples('../test_data/WNUT/16/train.txt')
 # dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
 dataset_wnut17_train, X, Y = get_tuples('../test_data/WNUT/17/wnut17train.conll')
 # dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
 dataset_ritters_train, X, Y = get_tuples('../test_data/ritter_ner.tsv')
 
+print len(dataset_ritters_train), len(dataset_wnut16_train), len(clean_tweets)
+
+for sent1 in dataset_ritters_train:
+    sim = False
+    found  = False
+    for sent2 in dataset_wnut16_train:
+        sim = simialr(sent1, sent2)
+        if sim == True:
+            found = True
+    if found == False:
+        clean_tweets.append(sent1)
+
+joblib.dump(clean_tweets, 'clean_tweets_16_ritters.pkl', compress=9)
+exit(0)
+# joblib.dump(clean_tweets, 'clean_tweets.pkl', compress=9)
+#
+# clean_tweets_2 = joblib.load('clean_tweets.pkl')
+#
+#
+# for sent1 in dataset_wnut17_train:
+#     sim = False
+#     found  = False
+#     for sent2 in clean_tweets:
+#         sim = simialr(sent1, sent2)
+#         if sim == True:
+#             found = True
+#     if found == False:
+#         clean_tweets_2.append(sent1)
+#
+# joblib.dump(clean_tweets_2, 'clean_tweets_16_17_ritters.pkl', compress=9)
+
+tot_len = len(dataset_ritters_train) + len(dataset_wnut16_train) + len(dataset_wnut17_train)
+print tot_len, len(dataset_ritters_train), len(dataset_wnut16_train), len(dataset_wnut17_train), len(clean_tweets_2)
+
+exit(0)
 cnt = 0
 rem = []
 
-for sent1 in dataset_ritters_train:
-    for sent2 in dataset_wnut16_train:
-        sim = 0
-        for tok1 in sent1:
-            for tok2 in sent2:
-                if tok1 == tok2:
-                    sim+=1
-        if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
-            cnt+=1
-            rem.append(sent1)
+
+# exit(0)
 print cnt, len(dataset_ritters_train)
 for sent1 in dataset_ritters_train:
     for sent2 in dataset_wnut17_train:

@@ -291,9 +291,9 @@ def sent2tokens(sent):
 
 
 dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
-# dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
+dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
 dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
-# dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
+dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
 dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
 
 dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
@@ -331,9 +331,9 @@ dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
 # print cnt, len(dataset_ritters_train)
 
 train_sents = dataset_ritters_train
-# train_sents.extend(dataset_wnut16_train)
+train_sents.extend(dataset_wnut16_train)
 train_sents.extend(dataset_wnut16_test)
-# train_sents.extend(dataset_wnut17_train)
+train_sents.extend(dataset_wnut17_train)
 train_sents.extend(dataset_wnut17_test)
 
 

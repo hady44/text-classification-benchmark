@@ -6,13 +6,19 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
-import CRF.definitions as definitions
+import  CRF.definitions as definitions
+from spacy.tokenizer import Tokenizer
+from spacy.attrs import ORTH, LEMMA
+import spacy
+from sklearn.linear_model import SGDClassifier
+
+nlp = spacy.load("en_core_web_sm")
+tokenizer = Tokenizer(nlp.vocab)
 
 lancaster_stemmer = LancasterStemmer()
 wordnet_lemmatizer = WordNetLemmatizer()
 tknzr = TweetTokenizer(preserve_case=True, strip_handles=False, reduce_len=False)
 stop = set(stopwords.words('english'))
-
 
 def get_tuples(dspath):
     sentences = []
@@ -43,20 +49,42 @@ def get_tuples(dspath):
             if line.strip() == '':
                 if len(tokens) != 0:
                     #poss = [x[1].decode('utf-8') for x in nltk.pos_tag(nltk.word_tokenize(s[:-1]))]
-                    poss = [x[1].decode('utf-8') for x in nltk.pos_tag(tknzr.tokenize(s[:-1]))]
 
+                    tknz = tokenizer(s)
+                    tknz2 = []
+                    # print len(tknz)
+                    for x in tknz:
+                        x = str(x).decode('utf-8')
+                        if x == u"  ":
+                            tknz2.append(u" ")
+                            tknz2.append(u" ")
+                        else:
+                            tknz2.append(x)
 
-                    #if len(poss) == len(tokens): # tokenization doesnt affect position of NERs, i.e., same tokenization
+                    # print tknz2
+                    poss = [x[1].decode('utf-8') for x in nltk.pos_tag(tknz2)]
+
+                    # gold = GoldParse(doc, words=words, tags=tags)
+
+                    # assert len(poss) == len(tokens) == len(ners)
+
                     sentences.append(zip(tokens, poss, ners))
                     #else:
                     #    aux = 0
                     #    for i in range(len()):
                     #        if aux <= tokens[i]
-
+                    # if len(poss) != len(tokens) or len(poss) != len(ners):
+                    #     print (poss)
+                    #     print tknz2, len(tknz2)
+                    #     print(tokens), len(tokens)
+                    #     print(ners)
+                    #     print "---------------------------"
                     tokens = []
                     ners = []
                     s = ''
                     tot_sentences += 1
+
+
             else:
                 s += token + ' '
                 tokens.append(token)
@@ -65,22 +93,62 @@ def get_tuples(dspath):
     return sentences
 
 
-dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
-dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
-dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
-dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
+def remove_extra_features(X_train_new, X_test_new):
+    train = []
+    test = []
 
-train_sents = dataset_wnut15_train
-train_sents.extend(dataset_wnut17_train)
-train_sents.extend(dataset_ritters_train)
+    train.extend(X_train_new)
+    test.extend(X_test_new)
 
-test_sents = dataset_wnut16_train
+    X_train = []
+    X_test = []
 
-tf_idf_clone_1 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_1.pkl')
-tf_idf_clone_2 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_2.pkl')
-tf_idf_clone_3 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_3.pkl')
-tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+svm_new.pkl')
+    for sentence in train:
+        tmp = []
+        for token in sentence:
+            del token['klass']
+            del token['klass_1']
+            del token['klass_2']
+            del token['klass_3']
 
+            if '+1:klass' in token:
+                del token['+1:klass']
+                del token['+1:klass_1']
+                del token['+1:klass_2']
+                del token['+1:klass_3']
+
+            if '-1:klass' in token:
+                del token['-1:klass']
+                del token['-1:klass_1']
+                del token['-1:klass_2']
+                del token['-1:klass_3']
+            tmp.append(token)
+        X_train.append(tmp)
+
+    for sentence in test:
+        tmp = []
+        for token in sentence:
+
+            del token['klass']
+            del token['klass_1']
+            del token['klass_2']
+            del token['klass_3']
+
+            if '+1:klass' in token:
+                del token['+1:klass']
+                del token['+1:klass_1']
+                del token['+1:klass_2']
+                del token['+1:klass_3']
+
+            if '-1:klass' in token:
+                del token['-1:klass']
+                del token['-1:klass_1']
+                del token['-1:klass_2']
+                del token['-1:klass_3']
+            tmp.append(token)
+        X_test.append(tmp)
+
+    return X_train, X_test
 
 def word2features(sent, i):
     word = sent[i][0]
@@ -222,32 +290,120 @@ def sent2tokens(sent):
     return [token for token, postag, label in sent]
 
 
-# X_train = [sent2features(s) for s in train_sents]
-# X_train_new = [sent2features_new(s) for s in train_sents]
+dataset_wnut15_train = get_tuples('../../../data/test_data/WNUT/15/2015.conll.freebase')
+dataset_wnut16_train = get_tuples('../../../data/test_data/WNUT/16/train.txt')
+dataset_wnut16_test = get_tuples('../../../data/test_data/WNUT/16/test.txt')
+dataset_wnut17_train = get_tuples('../../../data/test_data/WNUT/17/wnut17train.conll')
+dataset_wnut17_test = get_tuples('../../../data/test_data/WNUT/17/emerging.test.annotated')
+
+dataset_ritters_train = get_tuples('../../../data/test_data/ritter_ner.tsv')
+
+# cnt = 0
+# rem = []
+#
+# for sent1 in dataset_ritters_train:
+#     for sent2 in dataset_wnut16_train:
+#         sim = 0
+#         for tok1 in sent1:
+#             for tok2 in sent2:
+#                 if tok1 == tok2:
+#                     sim+=1
+#         if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+#             cnt+=1
+#             rem.append(sent1)
+# print cnt, len(dataset_ritters_train)
+# for sent1 in dataset_ritters_train:
+#     for sent2 in dataset_wnut17_train:
+#         sim = 0
+#         for tok1 in sent1:
+#             for tok2 in sent2:
+#                 if tok1 == tok2:
+#                     sim+=1
+#         if abs(sim - len(sent1)) < 2 and abs(sim - len(sent2)) < 2:
+#             cnt+=1
+#             rem.append(sent1)
+#
+# print cnt, len(dataset_ritters_train)
+#
+# for elem in rem:
+#     if elem in dataset_ritters_train:
+#         dataset_ritters_train.remove(elem)
+# print cnt, len(dataset_ritters_train)
+
+train_sents = dataset_ritters_train
+train_sents.extend(dataset_wnut15_train)
+train_sents.extend(dataset_wnut17_train)
+train_sents.extend(dataset_wnut17_test)
+
+
+test_sents =  dataset_wnut16_test
+test_sents.extend(dataset_wnut16_train)
+
+tf_idf_clone_1 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_1.pkl')
+tf_idf_clone_2 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_2.pkl')
+tf_idf_clone_3 = joblib.load('../../../one-hot-classifiers/tf-idf+svm_3.pkl')
+tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+svm_new.pkl')
+
+
+#extract new features
+print "Extracting new features"
+X_train_new = [sent2features_new(s) for s in train_sents]
+X_test_new = [sent2features_new(s) for s in test_sents]
+
+#extract raw labels
+print "Extracting labels"
 y_train_raw = [sent2labels(s) for s in train_sents]
-#
-# X_test = [sent2features(s) for s in test_sents]
-# X_test_new = [sent2features_new(s) for s in test_sents]
 y_test_raw = [sent2labels(s) for s in test_sents]
-#
-y_test = group_labels(y_test_raw)
+
+print "Grouping labels"
+#grouping raw labels
 y_train = group_labels(y_train_raw)
+y_test = group_labels(y_test_raw)
 
-# joblib.dump(X_train, 'X_train.pkl', compress=9)
-# joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
-# joblib.dump(y_train, 'y_train.pkl', compress=9)
-#
-# joblib.dump(X_test, 'X_test.pkl', compress=9)
-# joblib.dump(y_test, 'y_test.pkl', compress=9)
-# joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
-X_train = joblib.load('X_train.pkl')
+#dumping new features to avoid losing them later
+print "Dumping new features"
+joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
+joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
+
+#dump labels
+print "Dumping labels"
+joblib.dump(y_train, 'y_train.pkl', compress=9)
+joblib.dump(y_test, 'y_test.pkl', compress=9)
+
+# load new features initially
+print "Loading new features"
 X_train_new = joblib.load('X_train_new.pkl')
-# y_train = joblib.load('y_train.pkl')
-
-X_test = joblib.load('X_test.pkl')
 X_test_new = joblib.load('X_test_new.pkl')
-# y_test = joblib.load('y_test.pkl')
-# exit(0)
+#
+# #extract old features from new features
+print "Extracting old features"
+X_train, X_test = remove_extra_features(X_train_new, X_test_new)
+
+#dump old set of features
+print "Dumping old features"
+joblib.dump(X_train, 'X_train.pkl', compress=9)
+joblib.dump(X_test, 'X_test.pkl', compress=9)
+
+#load new features to restore them to their original state
+print "Loading new features to restore them to their original state"
+X_train_new = joblib.load('X_train_new.pkl')
+X_test_new = joblib.load('X_test_new.pkl')
+
+#load old features
+print "Loading old features"
+X_train = joblib.load('X_train.pkl')
+X_test = joblib.load('X_test.pkl')
+
+#load labels
+print "Loading labels"
+y_train = joblib.load('y_train.pkl')
+y_test = joblib.load('y_test.pkl')
+
+print len(y_train), len(X_train_new)
+print len(y_train), len(X_train)
+
+
+
 print "start"
 
 crf = sklearn_crfsuite.CRF(
