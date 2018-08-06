@@ -15,6 +15,7 @@ import  CRF.definitions as definitions
 from spacy.tokenizer import Tokenizer
 import spacy
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import SGDClassifier
 
 nlp = spacy.load("en_core_web_sm")
 tokenizer = Tokenizer(nlp.vocab)
@@ -376,9 +377,15 @@ rnd_clf = Pipeline([('vect', DictVectorizer()), ('clf-svm', RandomForestClassifi
 
 rnd_clf_new	 = Pipeline([('vect', DictVectorizer()), ('clf-svm', RandomForestClassifier())])
 
+nb_clf = Pipeline([('vect', DictVectorizer()),
+                         ('clf-svm', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, max_iter=5, random_state=42))])
+
+nb_clf_new = Pipeline([('vect', DictVectorizer()),
+                         ('clf-svm', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, max_iter=5, random_state=42))])
+
 for i in range(5):
     cur = np.random
-    X_train_new  = joblib.load('X_train_new.pkl')
+    X_train_new = joblib.load('X_train_new.pkl')
     X_test_new = joblib.load('X_test_new.pkl')
 
     X_train_folds_new, X_test_folds_new, y_train_folds, y_test_folds = X_train_new, X_test_new, y_train_raw, y_test_raw
@@ -396,11 +403,15 @@ for i in range(5):
     #Train random forest treees
     rnd_clf_new.fit(flat_X_train_folds_new, flat_y_train_folds)
 
+    nb_clf_new.fit(flat_X_train_folds_new, flat_y_train_folds)
+
     #predic using CRF
     y_pred_new = crf_new.predict(X_test_folds_new)
 
     #predic using Random forest trees
     y_pred_rnd_new = rnd_clf_new.predict(flat_X_test_folds_new)
+    y_pred_nb_new = nb_clf_new.predict(flat_X_test_folds_new)
+
     X_train_folds = []
     X_test_folds = []
 
@@ -459,12 +470,14 @@ for i in range(5):
     flat_X_test_folds = flatten(X_test_folds)
     # Train random forest treees
     rnd_clf.fit(flat_X_train_folds, flat_y_train_folds)
+    nb_clf.fit(flat_X_train_folds, flat_y_train_folds)
 
     # predic using CRF
     y_pred = crf.predict(X_test_folds)
 
     # predic using Random forest trees
     y_pred_rnd = rnd_clf.predict(flat_X_test_folds)
+    y_pred_nb = nb_clf.predict(flat_X_test_folds)
 
     labels = list(crf.classes_)
     labels.remove('O')
@@ -480,6 +493,12 @@ for i in range(5):
     print "------------------- new ---------------------"
     print(classification_report(flat_y_test_folds, y_pred_rnd_new, labels=labels, digits=3,
                                      target_names=labels))
+    print("####################### SGD Classifier ########################")
+    print(classification_report(flat_y_test_folds, y_pred_nb, labels=labels, digits=3,
+                                target_names=labels))
+    print "------------------- new ---------------------"
+    print(classification_report(flat_y_test_folds, y_pred_nb_new, labels=labels, digits=3,
+                                target_names=labels))
     print "*****************************************************************************************"
 
 

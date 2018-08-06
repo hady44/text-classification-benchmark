@@ -346,29 +346,29 @@ tf_idf_clone = joblib.load('../../../multi-class-classifier/tf-idf+svm/tf-idf+sv
 
 
 #extract new features
-print "Extracting new features"
-X_train_new = [sent2features_new(s) for s in train_sents]
-X_test_new = [sent2features_new(s) for s in test_sents]
-
-#extract raw labels
-print "Extracting labels"
-y_train_raw = [sent2labels(s) for s in train_sents]
-y_test_raw = [sent2labels(s) for s in test_sents]
-
-print "Grouping labels"
-#grouping raw labels
-y_train = group_labels(y_train_raw)
-y_test = group_labels(y_test_raw)
-
-#dumping new features to avoid losing them later
-print "Dumping new features"
-joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
-joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
-
-#dump labels
-print "Dumping labels"
-joblib.dump(y_train, 'y_train.pkl', compress=9)
-joblib.dump(y_test, 'y_test.pkl', compress=9)
+# print "Extracting new features"
+# X_train_new = [sent2features_new(s) for s in train_sents]
+# X_test_new = [sent2features_new(s) for s in test_sents]
+#
+# #extract raw labels
+# print "Extracting labels"
+# y_train_raw = [sent2labels(s) for s in train_sents]
+# y_test_raw = [sent2labels(s) for s in test_sents]
+#
+# print "Grouping labels"
+# #grouping raw labels
+# y_train = group_labels(y_train_raw)
+# y_test = group_labels(y_test_raw)
+#
+# #dumping new features to avoid losing them later
+# print "Dumping new features"
+# joblib.dump(X_train_new, 'X_train_new.pkl', compress=9)
+# joblib.dump(X_test_new, 'X_test_new.pkl', compress=9)
+#
+# #dump labels
+# print "Dumping labels"
+# joblib.dump(y_train, 'y_train.pkl', compress=9)
+# joblib.dump(y_test, 'y_test.pkl', compress=9)
 
 # load new features initially
 print "Loading new features"
